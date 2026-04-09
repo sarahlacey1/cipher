@@ -1,0 +1,1322 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=no">
+<title>CIPHER — Cybersecurity Career OS</title>
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
+<link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Orbitron:wght@700;900&family=Rajdhani:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{--bg0:#050911;--bg1:#0b1220;--bg2:#0f1928;--bg3:#141f32;--g:#00ff88;--c:#00d4ff;--a:#ffb800;--r:#ff3860;--p:#a78bfa;--t1:#dde5f0;--t2:#5d7a9a;--t3:#2a3d52;--bdr:#1a2a3a;--bdra:#00d4ff;--sg:0 0 24px rgba(0,255,136,.18);--sc:0 0 24px rgba(0,212,255,.18);--sa:0 0 24px rgba(255,184,0,.18);}
+*{margin:0;padding:0;box-sizing:border-box;}
+html{scroll-behavior:smooth;}
+body{background:var(--bg0);color:var(--t1);font-family:'Rajdhani',sans-serif;font-size:16px;min-height:100vh;overflow-x:hidden;}
+body::before{content:'';position:fixed;inset:0;background:repeating-linear-gradient(0deg,transparent,transparent 3px,rgba(0,212,255,.01) 3px,rgba(0,212,255,.01) 4px);pointer-events:none;z-index:0;}
+.hdr{position:sticky;top:0;z-index:200;background:rgba(5,9,17,.96);backdrop-filter:blur(16px);border-bottom:1px solid var(--bdr);}
+.hdr-inner{max-width:1100px;margin:0 auto;display:flex;align-items:center;justify-content:space-between;height:60px;padding:0 1.5rem;}
+.logo{font-family:'Orbitron',sans-serif;font-size:1.3rem;font-weight:900;letter-spacing:5px;color:var(--c);text-shadow:0 0 20px rgba(0,212,255,.4);}
+.logo em{color:var(--g);font-style:normal;}
+.hdr-stats{display:flex;gap:1.75rem;align-items:center;}
+.stat{text-align:center;}
+.stat-lbl{font-family:'Share Tech Mono',monospace;font-size:.58rem;color:var(--t2);text-transform:uppercase;letter-spacing:2px;display:block;}
+.stat-val{font-family:'Orbitron',sans-serif;font-size:.95rem;font-weight:700;color:var(--g);}
+.pbar-wrap{height:2px;background:var(--bg1);}
+.pbar{height:100%;background:linear-gradient(90deg,var(--g),var(--c));transition:width .6s ease;box-shadow:0 0 8px var(--g);}
+.phase-nav{background:var(--bg1);border-bottom:1px solid var(--bdr);}
+.phase-nav-inner{max-width:1100px;margin:0 auto;display:flex;padding:0 1.5rem;}
+.ptab{padding:.65rem 1.4rem;font-family:'Share Tech Mono',monospace;font-size:.72rem;color:var(--t2);cursor:pointer;border-bottom:2px solid transparent;transition:all .2s;text-transform:uppercase;letter-spacing:1px;user-select:none;}
+.ptab:hover{color:var(--t1);}
+.ptab.a1{color:var(--g);border-bottom-color:var(--g);}
+.ptab.a2{color:var(--c);border-bottom-color:var(--c);}
+.ptab.a3{color:var(--a);border-bottom-color:var(--a);}
+.main{max-width:1100px;margin:0 auto;padding:1.5rem;position:relative;z-index:1;}
+.psec{display:none;}
+.psec.vis{display:block;}
+.phdr{margin-bottom:1.5rem;}
+.ptitle{font-family:'Orbitron',sans-serif;font-size:1.3rem;font-weight:700;margin-bottom:.2rem;}
+.psub{font-family:'Share Tech Mono',monospace;font-size:.72rem;color:var(--t2);}
+.c1{color:var(--g);}.c2{color:var(--c);}.c3{color:var(--a);}
+.wk{background:var(--bg2);border:1px solid var(--bdr);border-radius:3px;overflow:hidden;position:relative;transition:border-color .3s,box-shadow .3s;margin-bottom:.7rem;}
+.wk.wa{border-color:var(--c);box-shadow:var(--sc);}
+.wk.wa.p1{border-color:var(--g);box-shadow:var(--sg);}
+.wk.wa.p3{border-color:var(--a);box-shadow:var(--sa);}
+.wk.wd{border-color:rgba(0,255,136,.25);opacity:.8;}
+.wk.wl{background:var(--bg1);opacity:.3;pointer-events:none;}
+.wk.wa::before,.wk.wd::before{content:'';position:absolute;top:0;left:0;width:3px;height:100%;}
+.wk.wa::before{background:var(--c);animation:pulse 2s ease-in-out infinite;}
+.wk.wa.p1::before{background:var(--g);}
+.wk.wa.p3::before{background:var(--a);}
+.wk.wd::before{background:var(--g);}
+.wkhdr{padding:.85rem 1.25rem;display:flex;align-items:center;gap:.7rem;cursor:pointer;user-select:none;}
+.wknum{font-family:'Orbitron',sans-serif;font-size:.62rem;font-weight:700;color:var(--t2);min-width:52px;}
+.wkicon{font-size:1rem;min-width:20px;text-align:center;}
+.wktitle{font-size:.92rem;font-weight:600;flex:1;}
+.badge{font-family:'Share Tech Mono',monospace;font-size:.58rem;padding:.15rem .42rem;border-radius:2px;text-transform:uppercase;letter-spacing:1px;border:1px solid;}
+.b1{background:rgba(0,255,136,.07);color:var(--g);border-color:rgba(0,255,136,.2);}
+.b2{background:rgba(0,212,255,.07);color:var(--c);border-color:rgba(0,212,255,.2);}
+.b3{background:rgba(255,184,0,.07);color:var(--a);border-color:rgba(255,184,0,.2);}
+.wkprog{font-family:'Share Tech Mono',monospace;font-size:.68rem;color:var(--t2);min-width:32px;text-align:right;}
+.wkbody{padding:0 1.25rem 1.25rem;display:none;}
+.wkbody.exp{display:block;}
+.div{height:1px;background:var(--bdr);margin-bottom:1.2rem;}
+.slbl{font-family:'Share Tech Mono',monospace;font-size:.58rem;color:var(--t2);text-transform:uppercase;letter-spacing:2px;margin-bottom:.55rem;}
+.tlist{list-style:none;margin-bottom:1.2rem;}
+.ti{display:flex;align-items:flex-start;gap:.6rem;padding:.35rem 0;cursor:pointer;user-select:none;}
+.tcb{width:15px;height:15px;border:1px solid var(--t2);border-radius:2px;flex-shrink:0;margin-top:3px;display:flex;align-items:center;justify-content:center;transition:all .2s;font-size:.6rem;}
+.ti.done .tcb{background:var(--g);border-color:var(--g);color:#000;font-weight:900;}
+.ttxt{font-size:.88rem;line-height:1.5;}
+.ti.done .ttxt{color:var(--t2);text-decoration:line-through;}
+.rlist{margin-bottom:1.2rem;}
+.ri{font-family:'Share Tech Mono',monospace;font-size:.72rem;color:var(--c);padding:.22rem 0 .22rem .6rem;border-left:2px solid rgba(0,212,255,.25);margin-bottom:.28rem;opacity:.8;line-height:1.4;}
+.carea{margin-top:.4rem;}
+.clocked{font-family:'Share Tech Mono',monospace;font-size:.7rem;color:var(--t3);text-align:center;padding:.8rem;border:1px dashed var(--bdr);border-radius:3px;}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:.4rem;padding:.52rem 1.1rem;border:none;border-radius:2px;font-family:'Share Tech Mono',monospace;font-size:.78rem;text-transform:uppercase;letter-spacing:1px;cursor:pointer;transition:all .2s;width:100%;}
+.bg{background:rgba(0,255,136,.07);color:var(--g);border:1px solid rgba(0,255,136,.35);}
+.bg:hover{background:rgba(0,255,136,.15);box-shadow:var(--sg);}
+.bc{background:rgba(0,212,255,.07);color:var(--c);border:1px solid rgba(0,212,255,.35);}
+.bc:hover{background:rgba(0,212,255,.15);box-shadow:var(--sc);}
+.ba{background:rgba(255,184,0,.07);color:var(--a);border:1px solid rgba(255,184,0,.35);}
+.ba:hover{background:rgba(255,184,0,.15);box-shadow:var(--sa);}
+.bsub{background:var(--g);color:#000;font-weight:700;padding:.58rem 1.8rem;width:auto;}
+.bsub:hover{background:#00e678;}
+.bhint{background:rgba(255,184,0,.07);color:var(--a);border:1px solid rgba(255,184,0,.22);font-size:.7rem;padding:.38rem .85rem;width:auto;}
+.bhint:hover{background:rgba(255,184,0,.15);}
+.bret{background:rgba(255,56,96,.07);color:var(--r);border:1px solid rgba(255,56,96,.28);padding:.48rem 1rem;width:auto;}
+.bret:hover{background:rgba(255,56,96,.15);}
+.brst{background:none;border:1px solid rgba(255,56,96,.18);color:rgba(255,56,96,.45);font-family:'Share Tech Mono',monospace;font-size:.58rem;padding:.22rem .55rem;border-radius:2px;cursor:pointer;text-transform:uppercase;letter-spacing:1px;transition:all .2s;}
+.brst:hover{color:var(--r);border-color:var(--r);}
+.overlay{position:fixed;inset:0;background:rgba(5,9,17,.9);backdrop-filter:blur(10px);z-index:500;display:none;align-items:center;justify-content:center;padding:1rem;}
+.overlay.open{display:flex;}
+.modal{background:var(--bg1);border:1px solid var(--bdra);border-radius:3px;width:100%;max-width:660px;max-height:92vh;overflow-y:auto;box-shadow:0 0 60px rgba(0,212,255,.12);position:relative;}
+.mhdr{padding:1.2rem 1.5rem;border-bottom:1px solid var(--bdr);display:flex;align-items:flex-start;justify-content:space-between;gap:1rem;}
+.meb{font-family:'Share Tech Mono',monospace;font-size:.58rem;color:var(--c);text-transform:uppercase;letter-spacing:2px;margin-bottom:.18rem;}
+.meb.e1{color:var(--g);}.meb.e3{color:var(--a);}
+.mtitle{font-family:'Orbitron',sans-serif;font-size:.98rem;font-weight:700;}
+.mclose{background:none;border:none;color:var(--t2);cursor:pointer;font-size:1.25rem;line-height:1;padding:.18rem;margin-top:.1rem;}
+.mclose:hover{color:var(--t1);}
+.mbody{padding:1.5rem;}
+.mfoot{padding:1rem 1.5rem;border-top:1px solid var(--bdr);display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:.7rem;}
+.hctr{font-family:'Share Tech Mono',monospace;font-size:.62rem;color:var(--t2);}
+.cdesc{font-family:'Share Tech Mono',monospace;font-size:.76rem;color:var(--t2);line-height:1.7;margin-bottom:1.2rem;padding:.82rem 1rem;background:var(--bg0);border-radius:3px;border-left:3px solid var(--c);}
+.cdesc.d1{border-left-color:var(--g);}.cdesc.d3{border-left-color:var(--a);}
+.cbox{font-family:'Share Tech Mono',monospace;font-size:.84rem;color:var(--g);background:var(--bg0);padding:.9rem;border-radius:3px;letter-spacing:2px;word-break:break-all;margin-bottom:.9rem;border:1px solid rgba(0,255,136,.15);}
+.cinp{width:100%;background:var(--bg0);border:1px solid var(--bdr);color:var(--t1);font-family:'Share Tech Mono',monospace;font-size:.88rem;padding:.65rem;border-radius:3px;outline:none;transition:border-color .2s;}
+.cinp:focus{border-color:var(--c);}
+.mcqs{display:flex;flex-direction:column;gap:1.2rem;}
+.mqb{margin-bottom:.4rem;}
+.mqnum{font-family:'Share Tech Mono',monospace;font-size:.62rem;color:var(--c);margin-bottom:.28rem;}
+.mqt{font-size:.88rem;font-weight:600;margin-bottom:.6rem;line-height:1.5;}
+.mopts{display:flex;flex-direction:column;gap:.32rem;}
+.mopt{display:flex;align-items:flex-start;gap:.6rem;padding:.55rem .82rem;background:var(--bg0);border:1px solid var(--bdr);border-radius:3px;cursor:pointer;transition:all .2s;font-size:.83rem;line-height:1.4;}
+.mopt:hover{border-color:var(--t2);}
+.mopt.sel{border-color:var(--c);background:rgba(0,212,255,.05);}
+.mopt.ok{border-color:var(--g);background:rgba(0,255,136,.07);}
+.mopt.no{border-color:var(--r);background:rgba(255,56,96,.07);}
+.mkey{font-family:'Share Tech Mono',monospace;font-size:.62rem;color:var(--t2);min-width:16px;margin-top:2px;}
+.mwrap{display:grid;grid-template-columns:1fr 1fr;gap:.45rem;}
+.mcol{display:flex;flex-direction:column;gap:.38rem;}
+.mclbl{font-family:'Share Tech Mono',monospace;font-size:.58rem;color:var(--t2);text-transform:uppercase;letter-spacing:1px;margin-bottom:.18rem;}
+.mit{padding:.5rem .7rem;background:var(--bg0);border:1px solid var(--bdr);border-radius:3px;cursor:pointer;font-family:'Share Tech Mono',monospace;font-size:.72rem;transition:all .2s;user-select:none;line-height:1.4;}
+.mit:hover{border-color:var(--t2);}
+.mit.ms{border-color:var(--c);background:rgba(0,212,255,.07);}
+.mit.mm{border-color:var(--g);background:rgba(0,255,136,.07);color:var(--g);cursor:default;}
+.mit.mw{border-color:var(--r);background:rgba(255,56,96,.07);animation:shake .28s ease;}
+.mit.md{opacity:.35;pointer-events:none;}
+.owrap{display:grid;grid-template-columns:1fr 1fr;gap:.9rem;}
+.opwrap,.oswrap{display:flex;flex-direction:column;gap:.32rem;}
+.olbl{font-family:'Share Tech Mono',monospace;font-size:.58rem;color:var(--t2);text-transform:uppercase;letter-spacing:1px;margin-bottom:.18rem;}
+.oit{display:flex;align-items:center;gap:.5rem;padding:.5rem .7rem;background:var(--bg0);border:1px solid var(--bdr);border-radius:3px;cursor:pointer;font-size:.8rem;transition:all .2s;user-select:none;line-height:1.4;}
+.oit:hover{border-color:var(--c);}
+.oit.op{opacity:.22;pointer-events:none;}
+.osl{display:flex;align-items:center;gap:.5rem;padding:.5rem .7rem;border:1px dashed var(--bdr);border-radius:3px;font-size:.8rem;min-height:36px;transition:all .2s;user-select:none;line-height:1.4;}
+.osl.of{border-color:var(--c);border-style:solid;background:rgba(0,212,255,.04);cursor:pointer;}
+.osl.of:hover{border-color:var(--r);}
+.osl.oo{border-color:var(--g);border-style:solid;background:rgba(0,255,136,.05);}
+.osl.ox{border-color:var(--r);border-style:solid;background:rgba(255,56,96,.05);}
+.osn{font-family:'Orbitron',sans-serif;font-size:.58rem;color:var(--t2);min-width:14px;}
+.agrid{display:flex;flex-direction:column;gap:.38rem;}
+.ait{padding:.62rem .82rem;background:var(--bg0);border:1px solid var(--bdr);border-radius:3px;cursor:pointer;font-size:.82rem;transition:all .2s;user-select:none;line-height:1.5;}
+.ait:hover{border-color:var(--c);}
+.ait.aok{border-color:var(--g);background:rgba(0,255,136,.07);}
+.ait.ano{border-color:var(--r);background:rgba(255,56,96,.07);animation:shake .28s ease;}
+.tblock{background:#000;border:1px solid rgba(0,255,136,.28);border-radius:3px;padding:.9rem;font-family:'Share Tech Mono',monospace;font-size:.8rem;margin-bottom:.9rem;}
+.tprompt{color:var(--g);margin-bottom:.5rem;}
+.tqb{margin-bottom:.8rem;}
+.tqlbl{font-size:.68rem;color:var(--t2);margin-bottom:.35rem;font-family:'Share Tech Mono',monospace;}
+.mqs-score{text-align:center;padding:.9rem;font-family:'Share Tech Mono',monospace;font-size:.88rem;color:var(--t2);margin-bottom:.9rem;}
+.mqs-score span{font-family:'Orbitron',monospace;font-size:1.4rem;font-weight:700;}
+.mqs-pass span{color:var(--g);}.mqs-fail span{color:var(--r);}
+.harea{margin-top:.9rem;}
+.hi{font-family:'Share Tech Mono',monospace;font-size:.72rem;color:var(--a);background:rgba(255,184,0,.05);border:1px solid rgba(255,184,0,.18);padding:.5rem .7rem;border-radius:3px;margin-bottom:.32rem;line-height:1.5;}
+.hi::before{content:'\25B2 HINT: ';}
+.fb{padding:.65rem .9rem;border-radius:3px;font-family:'Share Tech Mono',monospace;font-size:.76rem;margin-top:.9rem;display:none;}
+.fb.ok{background:rgba(0,255,136,.07);border:1px solid var(--g);color:var(--g);display:block;}
+.fb.no{background:rgba(255,56,96,.07);border:1px solid var(--r);color:var(--r);display:block;}
+.spbanner{background:linear-gradient(90deg,rgba(167,139,250,.12),rgba(0,212,255,.12));border:1px solid var(--p);padding:.65rem 1rem;border-radius:3px;margin-bottom:.9rem;font-family:'Share Tech Mono',monospace;font-size:.72rem;color:var(--p);text-align:center;}
+.hmbr{display:flex;align-items:center;justify-content:space-between;padding:.5rem .82rem;background:rgba(167,139,250,.07);border:1px solid rgba(167,139,250,.22);border-radius:3px;margin-bottom:.9rem;font-family:'Share Tech Mono',monospace;font-size:.7rem;color:var(--p);}
+.hmtog{background:none;border:1px solid var(--p);color:var(--p);font-family:'Share Tech Mono',monospace;font-size:.62rem;padding:.22rem .55rem;border-radius:2px;cursor:pointer;text-transform:uppercase;letter-spacing:1px;transition:all .2s;}
+.hmtog:hover{background:rgba(167,139,250,.15);}
+.hmtog.on{background:rgba(167,139,250,.2);}
+.sscrn{text-align:center;padding:1.8rem 1.5rem;}
+.si{font-size:2.8rem;margin-bottom:.65rem;}
+.stitle{font-family:'Orbitron',sans-serif;font-size:1.25rem;font-weight:900;color:var(--g);margin-bottom:.3rem;}
+.ssub{font-family:'Share Tech Mono',monospace;font-size:.76rem;color:var(--t2);margin-bottom:1.3rem;}
+.xpd{font-family:'Orbitron',sans-serif;font-size:1.9rem;font-weight:700;color:var(--a);margin-bottom:1.3rem;}
+.xpd small{font-size:.82rem;color:var(--t2);display:block;font-family:'Share Tech Mono',monospace;margin-top:.2rem;}
+::-webkit-scrollbar{width:5px;}
+::-webkit-scrollbar-track{background:var(--bg0);}
+::-webkit-scrollbar-thumb{background:var(--bdr);border-radius:3px;}
+footer{text-align:center;padding:2.5rem 1rem;font-family:'Share Tech Mono',monospace;font-size:.62rem;color:var(--t3);}
+@keyframes pulse{0%,100%{opacity:1;}50%{opacity:.35;}}
+@keyframes shake{0%,100%{transform:translateX(0);}25%{transform:translateX(-4px);}75%{transform:translateX(4px);}}
+
+/* ─── MOBILE RESPONSIVE ──────────────────────────────────────────────────── */
+@media(max-width:600px){
+  .hdr-inner{height:auto;padding:.6rem 1rem;flex-wrap:wrap;gap:.5rem;}
+  .logo{font-size:1.1rem;letter-spacing:3px;}
+  .hdr-stats{gap:.9rem;flex-wrap:wrap;}
+  .stat-lbl{font-size:.52rem;}
+  .stat-val{font-size:.82rem;}
+  .brst{font-size:.52rem;padding:.18rem .45rem;}
+  .phase-nav-inner{overflow-x:auto;-webkit-overflow-scrolling:touch;gap:0;padding:0 .75rem;}
+  .ptab{padding:.55rem .9rem;font-size:.65rem;white-space:nowrap;flex-shrink:0;}
+  .main{padding:1rem .75rem;}
+  .ph-hdr .ptitle,.phdr .ptitle{font-size:1.1rem;}
+  .ph-hdr .psub,.phdr .psub{font-size:.65rem;}
+  .wkhdr{padding:.75rem 1rem;gap:.5rem;}
+  .wknum{font-size:.58rem;min-width:42px;}
+  .wkicon{font-size:.9rem;min-width:18px;}
+  .wktitle,.wk-title{font-size:.84rem;}
+  .badge{font-size:.52rem;padding:.12rem .35rem;}
+  .wkprog{font-size:.62rem;min-width:28px;}
+  .wkbody,.wk-body{padding:0 .9rem 1rem;}
+  .slbl,.sec-lbl{font-size:.54rem;}
+  .ttxt,.task-txt{font-size:.83rem;}
+  .tcb{width:18px;height:18px;}
+  .ri,.res-item{font-size:.67rem;}
+  .btn{font-size:.72rem;padding:.58rem .9rem;}
+  /* modal */
+  .overlay,.modal-ov{padding:.5rem;}
+  .modal{max-height:96vh;border-radius:2px;}
+  .mhdr,.modal-hdr{padding:.9rem 1rem;}
+  .meb,.m-eye,.modal-eyebrow{font-size:.54rem;}
+  .mtitle,.m-title,.modal-title{font-size:.85rem;}
+  .mbody,.m-body,.modal-body{padding:1rem;}
+  .mfoot,.m-foot,.modal-footer{padding:.75rem 1rem;gap:.5rem;}
+  /* match game: stack vertically */
+  .mwrap,.match-wrap{grid-template-columns:1fr;gap:.65rem;}
+  .mclbl,.match-col-lbl{display:none;}
+  .mit,.match-item{font-size:.7rem;padding:.52rem .65rem;}
+  /* order game: stack vertically */
+  .owrap,.ord-wrap,.order-wrap{grid-template-columns:1fr;gap:.65rem;}
+  .oit,.order-item{font-size:.76rem;padding:.52rem .65rem;}
+  .osl,.order-slot{font-size:.76rem;padding:.52rem .65rem;}
+  /* mc options */
+  .mopt,.mc-opt{font-size:.8rem;padding:.52rem .7rem;}
+  /* anomaly */
+  .ait,.anomaly-item{font-size:.78rem;padding:.58rem .75rem;}
+  /* terminal */
+  .tblock,.terminal-block{font-size:.74rem;}
+  .cinp,.challenge-input,.ch-input{font-size:.82rem;}
+  /* cipher */
+  .cbox,.cipher-box{font-size:.74rem;letter-spacing:1px;}
+  /* hints */
+  .hi,.hint-item{font-size:.68rem;}
+  /* success screen */
+  .sscrn,.success-screen,.success-sc{padding:1.2rem 1rem;}
+  .xpd,.xp-display,.xp{font-size:1.5rem;}
+  .stitle,.success-title,.s-title{font-size:1rem;}
+  /* feedback */
+  .fb,.feedback{font-size:.72rem;}
+  /* spd banner */
+  .spbanner,.speedrun-banner{font-size:.68rem;}
+}
+@media(max-width:400px){
+  .hdr-stats{gap:.65rem;}
+  .stat{display:flex;flex-direction:column;align-items:center;}
+  .wktitle,.wk-title{font-size:.78rem;}
+  .mopt,.mc-opt{font-size:.76rem;}
+  .ait,.anomaly-item{font-size:.74rem;}
+}
+/* Touch targets: ensure minimum 44px tap area on mobile */
+@media(hover:none){
+  .ti,.task-item{min-height:40px;display:flex;align-items:center;}
+  .wkhdr,.wk-hdr{min-height:48px;}
+  .btn{min-height:44px;}
+  .mopt,.mc-opt{min-height:44px;}
+  .mit,.match-item{min-height:40px;}
+  .ait,.anomaly-item{min-height:44px;}
+  .oit,.order-item{min-height:40px;}
+}
+
+.tab-short{display:none;}
+@media(max-width:480px){
+  .tab-long{display:none;}
+  .tab-short{display:inline;}
+}
+
+/* ─── LOGIN SCREEN ─────────────────────────────────────────────────────────── */
+.login-screen{position:fixed;inset:0;background:var(--bg0);z-index:1000;display:flex;align-items:center;justify-content:center;padding:1.5rem;}
+.login-screen.hidden{display:none;}
+.login-box{width:100%;max-width:400px;background:var(--bg1);border:1px solid var(--c);border-radius:3px;padding:2rem;box-shadow:0 0 60px rgba(0,212,255,.15);}
+.login-logo{font-family:'Orbitron',sans-serif;font-size:2rem;font-weight:900;letter-spacing:6px;color:var(--c);text-align:center;margin-bottom:.3rem;text-shadow:0 0 20px rgba(0,212,255,.4);}
+.login-logo em{color:var(--g);font-style:normal;}
+.login-tagline{font-family:'Share Tech Mono',monospace;font-size:.68rem;color:var(--t2);text-align:center;letter-spacing:2px;text-transform:uppercase;margin-bottom:2rem;}
+.login-lbl{font-family:'Share Tech Mono',monospace;font-size:.62rem;color:var(--t2);text-transform:uppercase;letter-spacing:2px;margin-bottom:.4rem;display:block;}
+.login-inp{width:100%;background:var(--bg0);border:1px solid var(--bdr);color:var(--t1);font-family:'Share Tech Mono',monospace;font-size:.95rem;padding:.75rem;border-radius:3px;outline:none;transition:border-color .2s;margin-bottom:1rem;}
+.login-inp:focus{border-color:var(--c);}
+.login-inp.pin{letter-spacing:6px;font-size:1.2rem;text-align:center;}
+.login-btn{width:100%;background:var(--g);color:#000;font-family:'Orbitron',monospace;font-size:.82rem;font-weight:700;padding:.8rem;border:none;border-radius:3px;cursor:pointer;text-transform:uppercase;letter-spacing:2px;transition:all .2s;margin-top:.5rem;}
+.login-btn:hover{background:#00e678;box-shadow:var(--sg);}
+.login-btn:disabled{opacity:.5;cursor:not-allowed;}
+.login-msg{font-family:'Share Tech Mono',monospace;font-size:.72rem;text-align:center;margin-top:.85rem;min-height:1.2rem;}
+.login-msg.ok{color:var(--g);}
+.login-msg.err{color:var(--r);}
+.login-msg.info{color:var(--t2);}
+.login-divider{height:1px;background:var(--bdr);margin:1.2rem 0;}
+.login-note{font-family:'Share Tech Mono',monospace;font-size:.62rem;color:var(--t3);text-align:center;line-height:1.6;}
+.login-note strong{color:var(--t2);}
+.user-pill{display:flex;align-items:center;gap:.5rem;background:var(--bg2);border:1px solid rgba(0,255,136,.2);border-radius:2px;padding:.3rem .65rem;font-family:'Share Tech Mono',monospace;font-size:.62rem;color:var(--g);}
+.user-pill button{background:none;border:none;color:var(--t2);cursor:pointer;font-size:.75rem;padding:0;margin-left:.25rem;}
+.user-pill button:hover{color:var(--r);}
+.sync-dot{width:6px;height:6px;border-radius:50%;background:var(--t2);display:inline-block;margin-left:.3rem;transition:background .3s;}
+.sync-dot.synced{background:var(--g);}
+.sync-dot.syncing{background:var(--a);animation:pulse 1s infinite;}
+.sync-dot.error{background:var(--r);}
+</style>
+
+<!-- Firebase CDN -->
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
+
+<style>
+/* ─── LOGIN SCREEN ─────────────────────────────────────────────── */
+#login-screen{position:fixed;inset:0;background:var(--bg0);z-index:9999;display:flex;align-items:center;justify-content:center;padding:1.5rem;}
+.login-box{width:100%;max-width:380px;background:var(--bg1);border:1px solid var(--c);border-radius:3px;padding:2rem;box-shadow:0 0 60px rgba(0,212,255,.12);}
+.login-logo{font-family:'Orbitron',sans-serif;font-size:1.6rem;font-weight:900;color:var(--c);letter-spacing:6px;text-align:center;margin-bottom:.3rem;}
+.login-logo em{color:var(--g);font-style:normal;}
+.login-sub{font-family:'Share Tech Mono',monospace;font-size:.68rem;color:var(--t2);text-align:center;margin-bottom:2rem;letter-spacing:1px;}
+.login-lbl{font-family:'Share Tech Mono',monospace;font-size:.62rem;color:var(--t2);text-transform:uppercase;letter-spacing:2px;margin-bottom:.4rem;display:block;}
+.login-inp{width:100%;background:var(--bg0);border:1px solid var(--bdr);color:var(--t1);font-family:'Share Tech Mono',monospace;font-size:1rem;padding:.7rem .85rem;border-radius:3px;outline:none;transition:border-color .2s;margin-bottom:1rem;}
+.login-inp:focus{border-color:var(--c);}
+.login-inp.pin{letter-spacing:6px;font-size:1.2rem;text-align:center;}
+.login-btn{width:100%;background:var(--g);color:#000;font-family:'Share Tech Mono',monospace;font-size:.85rem;font-weight:700;padding:.75rem;border:none;border-radius:3px;cursor:pointer;text-transform:uppercase;letter-spacing:2px;transition:all .2s;margin-top:.5rem;}
+.login-btn:hover{background:#00e678;}
+.login-btn:disabled{background:var(--t3);cursor:not-allowed;color:var(--t2);}
+.login-toggle{text-align:center;margin-top:1.25rem;font-family:'Share Tech Mono',monospace;font-size:.68rem;color:var(--t2);}
+.login-toggle a{color:var(--c);cursor:pointer;text-decoration:none;}
+.login-toggle a:hover{color:var(--t1);}
+.login-err{font-family:'Share Tech Mono',monospace;font-size:.7rem;color:var(--r);text-align:center;margin-top:.75rem;min-height:1rem;}
+.login-loading{font-family:'Share Tech Mono',monospace;font-size:.72rem;color:var(--c);text-align:center;padding:1rem;display:none;}
+.user-badge{font-family:'Share Tech Mono',monospace;font-size:.58rem;color:var(--t2);border:1px solid var(--bdr);border-radius:2px;padding:.18rem .45rem;cursor:pointer;transition:all .2s;}
+.user-badge:hover{color:var(--r);border-color:var(--r);}
+.sync-dot{width:6px;height:6px;border-radius:50%;background:var(--g);display:inline-block;margin-left:.4rem;animation:pulse 2s infinite;}
+.sync-dot.syncing{background:var(--a);}
+.sync-dot.err{background:var(--r);animation:none;}
+</style>
+</head>
+<body>
+
+<div class="login-screen" id="loginScreen">
+  <div class="login-box">
+    <div class="login-logo">CI<em>PH</em>ER</div>
+    <div class="login-tagline">Cybersecurity Career OS</div>
+    <label class="login-lbl">Username</label>
+    <input class="login-inp" id="loginUser" type="text" placeholder="choose a username" autocomplete="off" autocapitalize="none" spellcheck="false" maxlength="20"/>
+    <label class="login-lbl">4-Digit PIN</label>
+    <input class="login-inp pin" id="loginPin" type="password" inputmode="numeric" placeholder="• • • •" maxlength="4" autocomplete="off"/>
+    <button class="login-btn" id="loginBtn" onclick="doLogin()">INITIALIZE PROFILE</button>
+    <div class="login-msg info" id="loginMsg">New username = creates profile. Returning = loads your progress.</div>
+    <div class="login-divider"></div>
+    <div class="login-note"><strong>Cross-device sync:</strong> Use the same username + PIN on any device to access your progress. Your data is stored securely in the cloud.</div>
+  </div>
+</div>
+
+
+<!-- LOGIN SCREEN -->
+<div id="login-screen">
+  <div class="login-box">
+    <div class="login-logo">CI<em>PH</em>ER</div>
+    <div class="login-sub">// CYBERSECURITY CAREER OS</div>
+    <div id="login-form">
+      <label class="login-lbl">Username</label>
+      <input class="login-inp" id="l-user" type="text" placeholder="choose a username" maxlength="20" autocomplete="off" autocapitalize="none" spellcheck="false"/>
+      <label class="login-lbl">PIN (4 digits)</label>
+      <input class="login-inp pin" id="l-pin" type="password" placeholder="••••" maxlength="4" inputmode="numeric" pattern="[0-9]*"/>
+      <button class="login-btn" id="l-btn" onclick="doLogin()">ENTER CIPHER</button>
+      <div class="login-err" id="l-err"></div>
+      <div class="login-toggle">First time? <a onclick="toggleMode()">Create your profile</a></div>
+    </div>
+    <div class="login-loading" id="l-loading">Connecting to database...</div>
+  </div>
+</div>
+
+<div class="hdr">
+  <div class="hdr-inner">
+    <div class="logo">CI<em>PH</em>ER</div>
+    <div class="hdr-stats">
+      <div class="stat"><span class="stat-lbl">Weeks Done</span><span class="stat-val" id="sw">0/30</span></div>
+      <div class="stat"><span class="stat-lbl">Phase</span><span class="stat-val" id="sp">1</span></div>
+      <div class="stat"><span class="stat-lbl">XP</span><span class="stat-val" id="sxp">0</span></div>
+      <div class="user-pill" id="userPill" style="display:none"><span id="userPillName"></span><span class="sync-dot" id="syncDot" title="Sync status"></span><button onclick="doLogout()" title="Sign out">⏻</button></div>
+      <span class="sync-dot" id="sync-dot" title="Sync status"></span><span class="user-badge" id="user-badge" onclick="doLogout()" title="Click to log out"></span><button class="brst" onclick="confirmReset()">RESET</button>
+    </div>
+  </div>
+  <div class="pbar-wrap"><div class="pbar" id="gbar" style="width:0%"></div></div>
+</div>
+<div class="phase-nav">
+  <div class="phase-nav-inner">
+    <div class="ptab a1" onclick="showPh(1)" id="t1"><span class="tab-long">Phase 1 — Foundation</span><span class="tab-short">P1: Foundation</span></div>
+    <div class="ptab" onclick="showPh(2)" id="t2"><span class="tab-long">Phase 2 — OSINT &amp; CTI</span><span class="tab-short">P2: OSINT</span></div>
+    <div class="ptab" onclick="showPh(3)" id="t3"><span class="tab-long">Phase 3 — CySA+ &amp; Career</span><span class="tab-short">P3: CySA+</span></div>
+  </div>
+</div>
+<div class="main">
+  <div class="psec vis" id="ph1">
+    <div class="phdr"><div class="ptitle c1">// Phase 1: Foundation</div><div class="psub">Weeks 1–10 &bull; CompTIA Security+ &bull; ~3 months</div></div>
+    <div id="wp1"></div>
+  </div>
+  <div class="psec" id="ph2">
+    <div class="phdr"><div class="ptitle c2">// Phase 2: OSINT &amp; Threat Intelligence</div><div class="psub">Weeks 11–21 &bull; OSINT Skills + Portfolio &bull; ~3 months</div></div>
+    <div id="wp2"></div>
+  </div>
+  <div class="psec" id="ph3">
+    <div class="phdr"><div class="ptitle c3">// Phase 3: CySA+ &amp; Career Launch</div><div class="psub">Weeks 22–30 &bull; CySA+ Certification + Job Search &bull; ~3 months</div></div>
+    <div id="wp3"></div>
+  </div>
+</div>
+<footer>CIPHER v1.0 &mdash; Built for one analyst. &mdash; 30 weeks. One mission.</footer>
+<div class="overlay" id="ov" onclick="closeOuter(event)">
+  <div class="modal" id="modal">
+    <div class="mhdr">
+      <div><div class="meb" id="meb">WEEK CHALLENGE</div><div class="mtitle" id="mtitle">Challenge</div></div>
+      <button class="mclose" onclick="closeM()">&#x2715;</button>
+    </div>
+    <div class="mbody" id="mbody"></div>
+    <div class="mfoot" id="mfoot"></div>
+  </div>
+</div>
+<script>
+// ─── FIREBASE INIT ────────────────────────────────────────────────────────────
+const firebaseConfig = {
+  apiKey: "AIzaSyAGzA3ERmn-FfAUDR0eN_Ler91AQzRi_8Q",
+  authDomain: "cipher-93dc4.firebaseapp.com",
+  projectId: "cipher-93dc4",
+  storageBucket: "cipher-93dc4.firebasestorage.app",
+  messagingSenderId: "1037218121444",
+  appId: "1:1037218121444:web:7e1193ed6789ea600c4ef1",
+  measurementId: "G-BNN7ERE6H0"
+};
+firebase.initializeApp(firebaseConfig);
+const db = firebase.firestore();
+
+// ─── AUTH STATE ───────────────────────────────────────────────────────────────
+let currentUser = null;
+let isCreating = false;
+let syncTimeout = null;
+
+function toggleMode() {
+  isCreating = !isCreating;
+  const btn = document.getElementById('l-btn');
+  const tog = document.querySelector('.login-toggle');
+  const lbl = document.querySelector('#login-form .login-lbl');
+  btn.textContent = isCreating ? 'CREATE PROFILE' : 'ENTER CIPHER';
+  tog.innerHTML = isCreating
+    ? 'Already have a profile? <a onclick="toggleMode()">Sign in</a>'
+    : 'First time? <a onclick="toggleMode()">Create your profile</a>';
+  document.getElementById('l-err').textContent = '';
+}
+
+async function doLogin() {
+  const username = (document.getElementById('l-user').value || '').trim().toLowerCase().replace(/[^a-z0-9_]/g,'');
+  const pin = (document.getElementById('l-pin').value || '').trim();
+  const err = document.getElementById('l-err');
+  const btn = document.getElementById('l-btn');
+
+  if (!username || username.length < 2) { err.textContent = 'Username must be at least 2 characters.'; return; }
+  if (!/^[0-9]{4}$/.test(pin)) { err.textContent = 'PIN must be exactly 4 digits.'; return; }
+
+  btn.disabled = true;
+  btn.textContent = isCreating ? 'Creating...' : 'Signing in...';
+  err.textContent = '';
+
+  try {
+    const ref = db.collection('users').doc(username);
+    const snap = await ref.get();
+
+    if (isCreating) {
+      if (snap.exists) { err.textContent = 'That username is taken. Choose another.'; btn.disabled=false; btn.textContent='CREATE PROFILE'; return; }
+      const initState = { pin, done:{}, weeks:[], times:{1:Date.now()}, xp:0, created:Date.now() };
+      await ref.set(initState);
+      currentUser = username;
+      ST = { done:{}, weeks:[], times:{1:Date.now()}, xp:0 };
+    } else {
+      if (!snap.exists) { err.textContent = 'Profile not found. Check username or create one.'; btn.disabled=false; btn.textContent='ENTER CIPHER'; return; }
+      const data = snap.data();
+      if (data.pin !== pin) { err.textContent = 'Incorrect PIN.'; btn.disabled=false; btn.textContent='ENTER CIPHER'; return; }
+      currentUser = username;
+      // Load saved state
+      ST = {
+        done: data.done || {},
+        weeks: data.weeks || [],
+        times: data.times || {1: Date.now()},
+        xp: data.xp || 0
+      };
+    }
+
+    // Convert numeric keys if needed (Firestore stores object keys as strings)
+    const doneFixed = {};
+    Object.keys(ST.done).forEach(k => { doneFixed[parseInt(k)] = ST.done[k]; });
+    ST.done = doneFixed;
+    const timesFixed = {};
+    Object.keys(ST.times).forEach(k => { timesFixed[parseInt(k)] = ST.times[k]; });
+    ST.times = timesFixed;
+    ST.weeks = ST.weeks.map(w => parseInt(w));
+
+    // Hide login, show app
+    document.getElementById('login-screen').style.display = 'none';
+    document.getElementById('user-badge').textContent = username.toUpperCase();
+    setSyncStatus('ok');
+    renderAll();
+    updateHeader();
+
+  } catch(e) {
+    console.error(e);
+    err.textContent = 'Connection error. Check your internet and try again.';
+    btn.disabled = false;
+    btn.textContent = isCreating ? 'CREATE PROFILE' : 'ENTER CIPHER';
+  }
+}
+
+function doLogout() {
+  if (!confirm('Log out of ' + currentUser + '?')) return;
+  currentUser = null;
+  ST = {done:{}, weeks:[], times:{}, xp:0};
+  document.getElementById('login-screen').style.display = 'flex';
+  document.getElementById('l-user').value = '';
+  document.getElementById('l-pin').value = '';
+  document.getElementById('l-err').textContent = '';
+  document.getElementById('l-btn').disabled = false;
+  document.getElementById('l-btn').textContent = 'ENTER CIPHER';
+  document.getElementById('user-badge').textContent = '';
+}
+
+// ─── FIRESTORE SYNC ───────────────────────────────────────────────────────────
+function setSyncStatus(status) {
+  const dot = document.getElementById('sync-dot');
+  if (!dot) return;
+  dot.className = 'sync-dot' + (status === 'syncing' ? ' syncing' : status === 'err' ? ' err' : '');
+  dot.title = status === 'ok' ? 'Synced' : status === 'syncing' ? 'Saving...' : 'Sync error';
+}
+
+async function syncToCloud() {
+  if (!currentUser) return;
+  setSyncStatus('syncing');
+  try {
+    await db.collection('users').doc(currentUser).update({
+      done: ST.done,
+      weeks: ST.weeks,
+      times: ST.times,
+      xp: ST.xp || 0,
+      lastSeen: Date.now()
+    });
+    setSyncStatus('ok');
+  } catch(e) {
+    console.error('Sync error:', e);
+    setSyncStatus('err');
+  }
+}
+
+function scheduleSyncToCloud() {
+  if (syncTimeout) clearTimeout(syncTimeout);
+  syncTimeout = setTimeout(syncToCloud, 1200); // debounce 1.2s
+}
+
+// Enter key on login inputs
+document.addEventListener('DOMContentLoaded', () => {
+  document.getElementById('l-pin').addEventListener('keydown', e => { if(e.key==='Enter') doLogin(); });
+  document.getElementById('l-user').addEventListener('keydown', e => { if(e.key==='Enter') document.getElementById('l-pin').focus(); });
+});
+</script>
+
+<script>
+const CUR=[
+{w:1,ph:1,pl:'FOUNDATION',title:'Initialize: Setting Up Your Arsenal',
+tasks:['Create a free account at TryHackMe.com','Complete the TryHackMe "Welcome" introductory room','Start Professor Messer\'s free Security+ SY0-701 course on YouTube — watch the Intro section','Watch "How the Internet Works in 5 Minutes" on YouTube (search that title exactly)','Write 3 sentences: what you want to achieve and why you started this journey'],
+res:['tryhackme.com — free account, your main training platform','YouTube: "Professor Messer Security+ SY0-701 Course" — free full course','professormesser.com/security-plus/sy0-701 — companion study materials'],
+ch:{type:'cipher',title:'SIGNAL INTERCEPT: Binary Decode',desc:'You intercepted a transmission from an unknown actor. It is encoded in binary — each group of 8 digits maps to one ASCII character. Decode the message to proceed.',enc:'01011001 01101111 01110101 00100000 01100001 01110010 01100101 00100000 01101001 01101110',ans:'you are in',hints:['Binary uses 0s and 1s. Each group of 8 digits represents one character.','Each 8-bit group converts to a decimal number, then to ASCII. 01011001 = 89.','ASCII 89=Y, 111=o, 117=u. Decode each group and read the message.'],
+hard:{type:'cipher',title:'ADVANCED INTERCEPT',enc:'01001000 01100001 01100011 01101011 01100101 01110010 00100000 01001101 01101001 01101110 01100100 01110011 01100101 01110100',ans:'hacker mindset',hints:['Same technique. Decode each 8-bit binary group to ASCII.','01001000=72=H. 01100001=97=a. 01100011=99=c.','Two words. A philosophy for this entire field.']}}},
+
+{w:2,ph:1,pl:'FOUNDATION',title:'Packets & Protocols: How Networks Talk',
+tasks:['TryHackMe: Complete "What is Networking?" in the Pre-Security pathway','TryHackMe: Complete "Intro to LAN" room','Study the OSI Model — write all 7 layers and their functions from memory by end of week','Memorize ports: 21(FTP) 22(SSH) 25(SMTP) 53(DNS) 80(HTTP) 443(HTTPS) 3389(RDP)','Professor Messer: Watch the "Network Attacks" section'],
+res:['TryHackMe Pre-Security pathway — start here','YouTube: "OSI Model Explained" — find a visual explainer you like','Professor Messer SY0-701 — Network Attacks module'],
+ch:{type:'match',title:'PORT AUTHORITY: Service Identification',desc:'A network scan returned open ports. Match each port to its service. Accurate identification is step one in threat analysis.',pairs:[{l:'Port 22',r:'SSH — Secure Shell'},{l:'Port 443',r:'HTTPS — Encrypted Web'},{l:'Port 53',r:'DNS — Domain Names'},{l:'Port 3389',r:'RDP — Remote Desktop'},{l:'Port 21',r:'FTP — File Transfer'}],hints:['Port 22 is for secure remote terminal access. "Secure Shell."','Port 443 is the encrypted version of web traffic. S = Secure.','Port 3389 is Microsoft remote desktop — one of the most-attacked ports.'],
+hard:{type:'match',title:'ADVANCED PORT SCAN',pairs:[{l:'Port 25',r:'SMTP — Email Relay'},{l:'Port 110',r:'POP3 — Email Retrieval'},{l:'Port 143',r:'IMAP — Mail Protocol'},{l:'Port 1433',r:'MS SQL Server'},{l:'Port 8080',r:'HTTP Alternate Port'}],hints:['Port 25 is how mail servers relay messages to each other.','POP3 downloads mail. IMAP keeps it synced on the server.','SQL Server port 1433 — attackers scan for this constantly.']}}},
+
+{w:3,ph:1,pl:'FOUNDATION',title:'Root Access: Linux Fundamentals',
+tasks:['TryHackMe: Complete "Linux Fundamentals Part 1"','TryHackMe: Complete "Linux Fundamentals Part 2"','Practice navigating the filesystem using only the terminal — no GUI file manager','Learn until comfortable: ls, cd, pwd, cat, grep, chmod, sudo, nano, man','TryHackMe: Complete "Linux Fundamentals Part 3"'],
+res:['TryHackMe: Linux Fundamentals 1, 2, and 3 (all free)','explainshell.com — paste any Linux command to understand every part','linuxcommand.org — free reference guide'],
+ch:{type:'terminal',title:'TERMINAL ACCESS: Command Check',desc:'You have access to a Linux machine and need to gather evidence. Type the exact command you would use for each scenario.',qs:[{lbl:'List ALL files including hidden ones',ans:'ls -la',alts:['ls -a','ls -al']},{lbl:'Search for "password" inside notes.txt',ans:'grep password notes.txt',alts:['grep "password" notes.txt']},{lbl:'Show full contents of /etc/passwd',ans:'cat /etc/passwd',alts:[]}],hints:['Hidden files start with a dot. Use ls -a to show all. Add -l for details.','grep searches text. Syntax: grep [term] [filename]','cat outputs file contents. Short for concatenate.'],
+hard:{type:'terminal',title:'ADVANCED LINUX',qs:[{lbl:'Find files modified in the last 24 hours',ans:'find / -mtime -1',alts:['find . -mtime -1']},{lbl:'Make run.sh executable',ans:'chmod +x run.sh',alts:['chmod 755 run.sh']},{lbl:'Show running processes with resource usage',ans:'top',alts:['htop','ps aux']}],hints:['find [path] -mtime -1 finds files modified within 1 day.','chmod +x adds execute permission. 755 sets rwxr-xr-x.','top is the classic process monitor. htop is friendlier.']}}},
+
+{w:4,ph:1,pl:'FOUNDATION',title:'The Web Exposed: HTTP Fundamentals',
+tasks:['TryHackMe: Complete "How Websites Work" room','TryHackMe: Complete "HTTP in Detail" room','Learn HTTP methods: GET, POST, PUT, DELETE, PATCH — know what each does','Memorize: 200(OK) 301(Redirect) 403(Forbidden) 404(Not Found) 500(Server Error)','Install Burp Suite Community Edition (free at portswigger.net) — just explore the UI'],
+res:['TryHackMe: "How the Web Works" section in Pre-Security','portswigger.net/burp/communitydownload — free Burp Suite','developer.mozilla.org/HTTP — Mozilla HTTP reference docs'],
+ch:{type:'multiplechoice',title:'HTTP INTERCEPT: Traffic Analysis',desc:'You are reviewing web traffic logs from a suspected breach. Use your HTTP knowledge to interpret each scenario.',qs:[{q:'An external IP hits /admin/login 847 times in 10 minutes, each returning 200. What does 200 mean?',opts:['Server rejected the request','Request was successful — server responded normally','Access was denied','Page not found'],a:1},{q:'You see 403 responses from one IP, then a single 200. What likely happened?',opts:['Server crashed','Blocked repeatedly but eventually gained access','Page was moved','A redirect occurred'],a:1},{q:'POST to /api/transfer returns 500. What does this indicate?',opts:['Transfer succeeded','Resource not found','Internal server error — potentially exploitable','User not authenticated'],a:2}],hints:['2xx=success, 3xx=redirect, 4xx=client error, 5xx=server error.','403 Forbidden means the server understood but refuses to authorize.','500 errors can sometimes be deliberately triggered to probe applications.'],hard:null}},
+
+{w:5,ph:1,pl:'FOUNDATION',title:'Threat Landscape: Social Engineering & Attacks',
+tasks:['Professor Messer: Watch Domain 1 — Threats, Attacks and Vulnerabilities (full section)','Learn and define without notes: Phishing, Spear Phishing, Whaling, Vishing, Smishing, Pretexting, Baiting','TryHackMe: Complete "Phishing" room','Research the cognitive psychology behind why social engineering works — your degree applies here','Study why authority, urgency, and fear are the three most exploited psychological triggers'],
+res:['Professor Messer Domain 1 — free on YouTube','TryHackMe: Phishing Analysis rooms (multiple available)','social-engineer.org — framework and free resources'],
+ch:{type:'findanomaly',title:'ATTACK CLASSIFIER: Find the Technical Exploit',desc:'Four of these involve social engineering — exploiting human psychology. ONE is a purely technical exploit bypassing humans entirely. Find it.',items:[{txt:'Attacker calls IT pretending to be a locked-out new employee',isA:false},{txt:'Email impersonating the CEO asks the CFO to wire funds urgently',isA:false},{txt:'Attacker exploits an unpatched SQL injection flaw to extract the user database',isA:true},{txt:'USB drives labeled "Q3 Salary Data" left in the company parking lot',isA:false},{txt:'SMS claiming account suspension unless credentials are verified via a link',isA:false},{txt:'Fake LinkedIn recruiter profile used to map employee organizational data',isA:false}],hints:['Social engineering exploits human psychology — trust, urgency, authority.','Which technique sends packets to a system without requiring a human to do anything?','SQL injection attacks vulnerable code — no human psychology required, just bad input validation.'],hard:null}},
+
+{w:6,ph:1,pl:'FOUNDATION',title:'Architecture & Defense: How Systems Are Protected',
+tasks:['Professor Messer: Watch Domain 2 — Architecture and Design (full section)','Study and be able to explain in plain language: Zero Trust, Defense in Depth, Least Privilege','TryHackMe: Complete "Intro to Defensive Security" room','Learn differences: Firewall vs IDS vs IPS vs WAF — what each does and does not do','TryHackMe: Begin the SOC Level 1 pathway — this will be your companion for the next month'],
+res:['Professor Messer Domain 2 — YouTube','TryHackMe: SOC Level 1 pathway — begin here','nist.gov/cyberframework — read the plain-language executive summary'],
+ch:{type:'cipher',title:'THREAT ACTOR COMMS: Caesar Cipher',desc:'Intelligence intercepted a message between two threat actors. Shift of 3 (A=D, B=E...). To decode, shift each letter BACK by 3. Spaces pass unchanged.',enc:'WKH ILUHZDOO LV GRZQ DW PLGQLJKW',ans:'the firewall is down at midnight',hints:['Caesar cipher shifts letters by a fixed amount. Shift 3: A=D, B=E, C=F.','To decode: reverse it. D=A, E=B, F=C. Shift backward by 3.','W back 3=T. K back 3=H. H back 3=E. First word: THE. Keep going.'],
+hard:{type:'cipher',title:'LARGER SHIFT INTERCEPT',enc:'JHLZHY JPWOLYZ HYL ZAPY LHZF AV IYLHR',ans:'caesar ciphers are still easy to break',hints:['Shift of 7. Work backward by 7 for each letter.','J back 7=C. H back 7=A. L back 7=E. First word: CAESAR.','The message is itself a security insight. You will recognize it.']}}},
+
+{w:7,ph:1,pl:'FOUNDATION',title:'Cryptography: The Math Behind Security',
+tasks:['Professor Messer: Domain 3 — Implementation, focus on cryptography modules','Understand clearly: Symmetric (same key) vs Asymmetric (public/private keypair) encryption','Learn hashing: MD5, SHA-1, SHA-256 — what each is, why older ones are insecure','TryHackMe: Complete "Encryption - Crypto 101" room','Practice identifying hash types using hash-identifier or an online tool'],
+res:['TryHackMe: Encryption - Crypto 101 (free)','Professor Messer Domain 3 — YouTube','cryptohack.org — gamified cryptography challenges (free, excellent)'],
+ch:{type:'match',title:'CRYPTO CLASSIFICATION',desc:'A malware sample uses mixed cryptographic techniques. Classify each correctly to understand the actor\'s operational security.',pairs:[{l:'AES-256',r:'Symmetric encryption'},{l:'RSA-2048',r:'Asymmetric encryption'},{l:'SHA-256',r:'Cryptographic hash function'},{l:'MD5',r:'Broken/deprecated hash'},{l:'TLS handshake',r:'Uses both symmetric & asymmetric'}],hints:['AES uses the same secret key to encrypt and decrypt.','RSA uses a keypair: public key encrypts, private key decrypts.','SHA-256 is one-way — you cannot reverse a hash. That is the whole point.'],hard:null}},
+
+{w:8,ph:1,pl:'FOUNDATION',title:'Incident Response: When Things Go Wrong',
+tasks:['Professor Messer: Domain 4 — Operations and Incident Response (full section)','Memorize in order: Preparation, Identification, Containment, Eradication, Recovery, Lessons Learned','TryHackMe: Complete introductory Incident Response rooms','Study SIEM basics: what it collects, what correlation rules do, why it matters for analysts','Read one real CISA advisory at cisa.gov — study how they structure incident documentation'],
+res:['Professor Messer Domain 4 — YouTube','cisa.gov/news-events/cybersecurity-advisories — real incident reports (free)','TryHackMe: SOC Level 1 pathway — IR and forensics sections'],
+ch:{type:'order',title:'INCIDENT RESPONSE: Sequence the Phases',desc:'A breach alert just fired. Put the six IR phases in correct operational order by clicking them in sequence.',items:[{txt:'Lessons Learned — document and improve after resolution',ord:6},{txt:'Preparation — establish team, playbooks, and tools before incidents',ord:1},{txt:'Eradication — remove the threat from all affected systems',ord:4},{txt:'Containment — isolate affected systems, stop the spread',ord:3},{txt:'Recovery — restore systems to normal, monitor for recurrence',ord:5},{txt:'Identification — detect, verify, confirm an incident occurred',ord:2}],hints:['You cannot respond effectively without preparation. What must exist before any incident?','After prep: detect it, stop it spreading, remove it, restore, then reflect.','Lessons Learned is most often skipped — and that is why the same incidents repeat.'],hard:null}},
+
+{w:9,ph:1,pl:'FOUNDATION',title:'Governance, Risk & Compliance',
+tasks:['Professor Messer: Domain 5 — Governance, Risk, and Compliance (full section)','Study: GDPR (EU personal data), HIPAA (healthcare), PCI-DSS (payment cards), SOX (financial), CCPA (California)','Take your first full Security+ practice exam at ExamTopics.com (free) — write down every wrong answer','Take a second practice exam — track improvement, identify weak domains','Create a one-page cheat sheet for each weak domain you identified'],
+res:['examtopics.com — free Security+ SY0-701 practice questions','Professor Messer Domain 5 — YouTube','reddit.com/r/CompTIA — community tips and discount codes'],
+ch:{type:'match',title:'COMPLIANCE FRAMEWORK MAPPING',desc:'A breach occurred. Multiple frameworks may apply. Match each data type to the correct governing framework.',pairs:[{l:'Hospital patient medical records',r:'HIPAA'},{l:'EU resident personal data',r:'GDPR'},{l:'Credit card transaction data',r:'PCI-DSS'},{l:'Public company financial records',r:'SOX'},{l:'California residents personal info',r:'CCPA'}],hints:['HIPAA protects US healthcare data. Medical always means HIPAA.','GDPR applies to ANY org processing EU resident data — even non-EU companies.','PCI-DSS was created by card brands. Payment card data = PCI-DSS, always.'],hard:null}},
+
+{w:10,ph:1,pl:'FOUNDATION',title:'MISSION ALPHA ⚡ Security+ Certification',
+tasks:['Take final practice exam — do NOT schedule until scoring 85%+ consistently on 3 attempts','Review every weak area one final time — extra time on domains under 80%','Search Reddit r/CompTIA for current discount codes before paying (~10-20% off)','Schedule and take the CompTIA Security+ SY0-701 exam (~$392)','Add it to LinkedIn the day you pass. Update your resume immediately. Do not wait.'],
+res:['comptia.org/certifications/security — official exam registration','reddit.com/r/CompTIA — community support and discount codes','Professor Messer — go back to any section that felt weak'],
+ch:{type:'multiquestion',title:'PHASE 1 BOSS: Security+ Rapid Fire',desc:'Five questions across all five Security+ domains. You need 4 of 5 to unlock Phase 2. You are ready.',thresh:4,qs:[{q:'Which attack targets a specific high-value individual like a CEO?',opts:['Phishing','Whaling','Vishing','Smishing'],a:1},{q:'Which algorithm uses the same key to encrypt and decrypt?',opts:['RSA','ECC','AES','Diffie-Hellman'],a:2},{q:'Which IR phase removes malware from all affected systems?',opts:['Containment','Identification','Eradication','Recovery'],a:2},{q:'A firewall that tracks active connection state is called:',opts:['Packet filtering firewall','Stateful inspection firewall','Application-layer firewall','Proxy firewall'],a:1},{q:'Which framework protects EU residents personal data?',opts:['HIPAA','PCI-DSS','SOX','GDPR'],a:3}],hints:['Whaling targets high-value individuals. Big fish = whale = executive.','AES is the symmetric gold standard. RSA and ECC use different keys to encrypt vs decrypt.','Eradication removes the threat. Containment stops it spreading. They are different phases.'],hard:null}},
+
+{w:11,ph:2,pl:'OSINT & CTI',title:'Going Dark: Introduction to OSINT',
+tasks:['Plan purchase of TCM Security OSINT Fundamentals (~$30 at tcm-sec.com) — worth every dollar','TCM Course: Watch Introduction and Setup modules','Research "sock puppet accounts" — what they are, why investigators use them, legal and ethical limits','Install privacy extensions: uBlock Origin and Privacy Badger (protect yourself while investigating)','Read Bellingcat\'s "How to Build an Open Source Investigation" — free at bellingcat.com'],
+res:['tcm-sec.com — OSINT Fundamentals course (~$30)','bellingcat.com/resources — free investigation methodology guides','osintframework.com — bookmark this interactive map of every OSINT tool'],
+ch:{type:'findanomaly',title:'RECON CLASSIFIER: Find the Active Technique',desc:'Passive recon leaves NO trace on the target. Active recon touches their systems and can alert them. One technique below is ACTIVE — identify it.',items:[{txt:'Looking up WHOIS registration records for a target domain',isA:false},{txt:'Reviewing the company public employee list on LinkedIn',isA:false},{txt:'Running Nmap port scan directly against the target live server',isA:true},{txt:'Searching Google cache for an archived version of the target website',isA:false},{txt:'Reading the company annual report on SEC EDGAR',isA:false},{txt:'Checking Shodan for publicly indexed information about the target',isA:false}],hints:['Passive OSINT uses data already publicly available. You never touch the target systems.','Ask: does this technique send packets TO the target infrastructure?','Nmap sends packets directly to the target servers to probe open ports. That is active reconnaissance.'],hard:null}},
+
+{w:12,ph:2,pl:'OSINT & CTI',title:'Surface Intelligence: Passive Reconnaissance',
+tasks:['TCM Course: Complete the Passive Reconnaissance module','Learn and practice Google Dork operators: site:, filetype:, inurl:, intitle: — combine them','Perform WHOIS lookups on 5 different domains at whois.domaintools.com (free)','Explore Shodan.io free tier — search for an internet-connected device type and observe what is exposed','TryHackMe: Complete "Passive Reconnaissance" room'],
+res:['exploit-db.com/google-hacking-database — huge database of real dorks (free)','shodan.io — search engine for internet-connected devices','whois.domaintools.com — WHOIS lookup'],
+ch:{type:'multiplechoice',title:'GOOGLE DORK OPERATOR',desc:'You are passively investigating a company for exposed sensitive files. Select the correct dork syntax.',qs:[{q:'Find PDF documents on targetcorp.com specifically:',opts:['inurl:targetcorp.com type:pdf','site:targetcorp.com filetype:pdf','domain:targetcorp.com ext:pdf','host:targetcorp.com file:pdf'],a:1},{q:'Find pages with "login" in the URL across any site:',opts:['find:login','intitle:login admin','inurl:login','site:login'],a:2},{q:'Find Excel spreadsheets on government .gov sites:',opts:['filetype:xlsx site:.gov','site:.gov ext:excel','domain:.gov type:spreadsheet','inurl:.gov filetype:xlsx'],a:0}],hints:['site: restricts to a domain. filetype: restricts by extension.','inurl: searches within the URL itself. intitle: searches page titles.','Combine operators with a space: site:.gov filetype:xlsx'],hard:null}},
+
+{w:13,ph:2,pl:'OSINT & CTI',title:'The Human Layer: Social Media Intelligence',
+tasks:['TCM Course: Complete OSINT Through Social Media module','Explore username enumeration: try Sherlock (github.com/sherlock-project/sherlock) or namechk.com','Read one complete Bellingcat investigation — document their methodology steps as you read','Practice: Choose a public figure and collect only publicly visible information — note sources and methods','Write a list of 8+ specific behavioral indicators of a fake or coordinated inauthentic social account'],
+res:['github.com/sherlock-project/sherlock — username search across 300+ platforms','namechk.com — simple web username search tool','bellingcat.com — read their published investigations as methodology examples'],
+ch:{type:'findanomaly',title:'FAKE ACCOUNT DETECTION',desc:'You are investigating a disinformation campaign. Three accounts are profiled. Two are genuine users. One is a coordinated inauthentic account. Identify it.',items:[{txt:'Created 7 years ago. 180 posts. Personal photos (same face aging over time), local sports opinions, replies to friends. Connected to locally known accounts.',isA:false},{txt:'Created 19 days ago. 912 posts. Posts every 90 minutes including 2-5am. Stock image profile photo. 97% of posts amplify one political narrative. Zero conversational replies.',isA:true},{txt:'Created 3 years ago. 290 posts. Travel and cooking content. Occasional news commentary. Photos consistent with same person. Connected to coworkers and family.',isA:false}],hints:['Real humans sleep, have varied interests, and engage in actual conversation.','Look at posting pattern: time of day, frequency, and whether content is one-dimensional.','High-volume posting at unusual hours, stock photo profile, zero genuine replies — three red flags, all in one account.'],hard:null}},
+
+{w:14,ph:2,pl:'OSINT & CTI',title:'Where in the World: Geolocation & Image OSINT',
+tasks:['TCM Course: Complete Image OSINT and Geolocation modules','Study EXIF data: what is embedded in photos and how to extract it using exifdata.com','Practice GeoGuessr (geoguessr.com) — this genuinely trains pattern recognition for geolocation','Attempt the Bellingcat Geolocation Quiz (free at bellingcat.com) — it will humble and teach you','Learn reverse image search differences: Google Images vs TinEye vs Yandex — try all three on same image'],
+res:['exifdata.com — online EXIF metadata viewer (free)','tineye.com — reverse image search','geoguessr.com — geolocation training game','bellingcat.com — geolocation quiz'],
+ch:{type:'multiplechoice',title:'METADATA EXTRACTION: Image Intelligence',desc:'An anonymous source sent an image file. Extract intelligence from its metadata.',qs:[{q:'Which EXIF field reveals GPS location where a photo was taken?',opts:['GPSInfo','CameraModel','DateTimeOriginal','ImageDescription'],a:0},{q:'A suspect claims a photo was shot at 9am. Which EXIF field verifies this?',opts:['FileSize','DateTimeOriginal','ColorSpace','ExposureTime'],a:1},{q:'You want to identify what device took the photo. Which fields contain this?',opts:['Software','Make and Model','Flash setting','WhiteBalance'],a:1}],hints:['GPSInfo is the standard EXIF tag for geographic coordinates.','DateTimeOriginal records the exact moment the shutter clicked — differs from file modified date.','Make = manufacturer (Apple, Samsung, Canon). Model = specific device.'],hard:null}},
+
+{w:15,ph:2,pl:'OSINT & CTI',title:'Email & Domain Intelligence',
+tasks:['TCM Course: Complete Email OSINT and Website/Domain OSINT modules','Study email header analysis: learn to read Received: fields and trace message routing','Practice: Find a spam email in your inbox. View raw headers. Trace where it actually came from.','Explore free tools: MXToolbox (mxtoolbox.com), ViewDNS.info, Hunter.io (50 free searches/month)','TryHackMe: Complete a Phishing Emails analysis room'],
+res:['mxtoolbox.com — email header analyzer and DNS tools','viewdns.info — reverse IP, WHOIS, DNS propagation','hunter.io — email finder (50 free searches/month)'],
+ch:{type:'multiplechoice',title:'EMAIL HEADER FORENSICS',desc:'An employee reported a suspicious email claiming to be from the CEO. Analyze the header clues.',qs:[{q:'From: shows CEO@company.com but Return-Path: shows reply@xn--cmpany-9va.com. What does this indicate?',opts:['Normal routing','Email spoofing — display address and actual sender do not match','Encrypted message','Forwarded email'],a:1},{q:'Received: headers show routing through Eastern Europe before the US server. CEO is local. Flag this?',opts:['Nothing — international routing is normal','Suspicious — unexpected geographic origin for an internal executive email','Standard CDN behavior','Encryption artifact'],a:1},{q:'Authentication shows SPF=FAIL. What does this mean?',opts:['Email is safe','Sending server is NOT authorized to send for that domain','Email was encrypted in transit','Mail server is offline'],a:1}],hints:['The From: field is trivially spoofable. Always check Return-Path for where replies actually go.','Email routing through unexpected geographies for internal executive messages is a major red flag.','SPF verifies the sending server is listed in the domain DNS records. FAIL means it is not.'],hard:null}},
+
+{w:16,ph:2,pl:'OSINT & CTI',title:'Know Your Enemy: MITRE ATT&CK Framework',
+tasks:['Spend 90 minutes exploring attack.mitre.org — navigate the matrix, click individual techniques, read examples','Understand: Tactic (WHY — the goal) vs Technique (HOW — the method) vs Procedure (specific implementation)','Memorize all 14 MITRE ATT&CK Tactics — write a physical cheat sheet','TryHackMe: Complete the MITRE room','Study Lockheed Martin Cyber Kill Chain — how does it complement ATT&CK?'],
+res:['attack.mitre.org — the ATT&CK framework (free, essential for your career)','TryHackMe: MITRE room (free)','lockheedmartin.com/cyber-kill-chain — original Kill Chain model'],
+ch:{type:'order',title:'CYBER KILL CHAIN: Sequence the Attack',desc:'A threat actor is executing a targeted intrusion. Put the 7 Kill Chain phases in correct order.',items:[{txt:'Actions on Objectives — achieve the mission: exfiltrate, destroy, or ransom',ord:7},{txt:'Reconnaissance — research the target using OSINT',ord:1},{txt:'Installation — install backdoor to maintain persistent access',ord:5},{txt:'Weaponization — build the exploit into a deliverable weapon',ord:2},{txt:'Command & Control — establish encrypted channel with victim system',ord:6},{txt:'Delivery — transmit the weapon via email, USB, or web',ord:3},{txt:'Exploitation — trigger the exploit to gain initial foothold',ord:4}],hints:['Every attack starts before a single packet is sent. Intelligence gathering is first.','After recon: build weapon, deliver, exploit, persist, establish control, achieve goal.','C2 comes AFTER installation but BEFORE the final objectives are executed.'],hard:null}},
+
+{w:17,ph:2,pl:'OSINT & CTI',title:'Know Your Enemy: Threat Actor Profiling',
+tasks:['Read 3 public threat intelligence reports: CISA advisories, CrowdStrike blog, or Mandiant research','Study differences: Nation-state APTs vs Cybercriminal groups vs Hacktivists — motivation, TTPs, stealth level','Study the Diamond Model of Intrusion Analysis — draw it from memory without looking it up','TryHackMe: Complete Threat Intelligence Tools room','Build your first threat actor reference sheet — document 3 known groups with their TTPs and targets'],
+res:['cisa.gov/news-events/cybersecurity-advisories — free government threat intel','crowdstrike.com/adversary-universe — threat actor profiles','TryHackMe: Cyber Threat Intelligence and Threat Intelligence Tools rooms (free)'],
+ch:{type:'multiplechoice',title:'THREAT ACTOR ATTRIBUTION',desc:'Analyze each intrusion profile and identify the most likely actor category.',qs:[{q:'Foreign defense ministry silently infiltrated. Custom malware, no ransom, data exfiltrated over 14 months. No public claims.',opts:['Cybercriminal group','Nation-state APT conducting espionage','Hacktivist group','Opportunistic script kiddie'],a:1},{q:'Hospital network encrypted. Bitcoin ransom note. Data decrypted after payment. Nothing published publicly.',opts:['Nation-state espionage','Hacktivist attack','Cybercriminal ransomware group','State-sponsored disruption'],a:2},{q:'Oil company website defaced with anti-fossil-fuel messaging. Group publicly claims responsibility and releases employee emails.',opts:['Nation-state actor','Financially motivated cybercriminal','Hacktivist group','Insider threat'],a:2}],hints:['Nation-state actors operate with patience and stealth. They never announce themselves.','Cybercriminals are motivated by financial gain. Ransomware, fraud, theft.','Hacktivists WANT publicity. The announcement is part of the attack. Ideology drives them, not money.'],hard:null}},
+
+{w:18,ph:2,pl:'OSINT & CTI',title:'Indicators of Compromise: Reading the Evidence',
+tasks:['Study all IOC types: IP addresses, domains, URLs, file hashes, email addresses, registry keys, mutexes','Read "The Pyramid of Pain" by David Bianco — search the exact title to find the original blog post. Essential reading.','Practice: Analyze 5 suspicious URLs using VirusTotal (virustotal.com) and URLScan.io (both free)','Practice: Look up 3 suspicious IPs on AbuseIPDB (abuseipdb.com — free)','TryHackMe: Complete Cyber Threat Intelligence room'],
+res:['virustotal.com — multi-engine IOC analysis (free, essential daily tool)','urlscan.io — website behavior analysis (free)','abuseipdb.com — community IP reputation database (free)'],
+ch:{type:'order',title:'PYRAMID OF PAIN: Rank by Adversary Cost',desc:'Click items in order from EASIEST for the adversary to change (1) to HARDEST (6).',items:[{txt:'TTPs — the adversary tactics, techniques, and operational procedures',ord:6},{txt:'Hash values — MD5/SHA256 file hashes of malware',ord:1},{txt:'Domain names — C2 domains and phishing infrastructure',ord:3},{txt:'IP addresses — attacker server IPs',ord:2},{txt:'Network/host artifacts — registry keys, file paths, mutexes',ord:5},{txt:'Tools — specific malware families or offensive frameworks',ord:4}],hints:['File hashes change with one bit modified. Trivially easy for attackers to regenerate.','IP addresses require infrastructure changes — slightly harder but still cheap for well-resourced actors.','TTPs represent deep operational methodology. Changing how they operate requires retraining entire teams.'],hard:null}},
+
+{w:19,ph:2,pl:'OSINT & CTI',title:'First Field Report: Portfolio Investigation #1',
+tasks:['Write your first documented OSINT investigation using a CTF challenge, Trace Labs data, or public dataset','Format: Executive Summary, Scope/Methodology, Findings, IOCs/Indicators, Recommendations','Minimum 1.5 pages. Every sentence should add value.','Publish it: GitHub Pages, Notion public page, or a blog — make it publicly accessible','Have someone read only the Executive Summary — if a non-technical person understands the key finding, it works'],
+res:['tracelabs.org — OSINT CTF for real missing persons cases (free, impactful)','pages.github.com — free portfolio hosting','bellingcat.com — study their report format as your template'],
+ch:{type:'multiplechoice',title:'REPORT QUALITY REVIEW',desc:'You are peer-reviewing a junior analyst report. Identify the critical problem in each section.',qs:[{q:'Executive Summary reads: "We found malicious activity involving bad IPs and malware that did things to the registry and some emails were involved." Primary problem?',opts:['Too long','Vague — no specific findings, no business impact, not actionable','Too much jargon','Missing author name'],a:1},{q:'Findings lists 40 IOCs with no context, confidence levels, or source attribution. What is critically missing?',opts:['More IOCs','Attribution methodology, confidence levels, and why each IOC matters to THIS org','More screenshots','A chart'],a:1},{q:'Recommendations states: "The organization should improve their security posture." Problem?',opts:['Too technical','Not actionable — no specific steps, no priorities, no timeline, no ownership','Too expensive','Wrong company name'],a:1}],hints:['An Executive Summary: what happened, how bad is it, what should be done. 3-5 sentences.','IOC context: when seen, in what campaign, at what confidence level, what it means for this org specifically.','Good recommendations are SMART: Specific, Measurable, Actionable, Relevant, Time-bound.'],hard:null}},
+
+{w:20,ph:2,pl:'OSINT & CTI',title:'CTI Platforms & Portfolio Investigation #2',
+tasks:['Explore MISP (misp-project.org) — read docs, try the demo instance if available','TryHackMe: Complete OpenCTI room (free)','TryHackMe: Complete MISP room (free)','Study: What does a dedicated CTI platform do that a spreadsheet cannot?','Write Portfolio Investigation #2 — more complex than #1. Correlate intelligence from two different source types.'],
+res:['misp-project.org — MISP open source threat intelligence platform','TryHackMe: OpenCTI and MISP rooms (both free)','github.com/OpenCTI-Platform/opencti — OpenCTI documentation'],
+ch:{type:'match',title:'CTI TOOL CLASSIFICATION',desc:'Match each CTI tool to its primary operational function.',pairs:[{l:'VirusTotal',r:'Multi-engine IOC reputation analysis'},{l:'Maltego',r:'Visual link analysis and mapping'},{l:'MISP',r:'Threat intel sharing platform'},{l:'Shodan',r:'Internet-connected device discovery'},{l:'URLScan.io',r:'Website behavior and screenshot capture'}],hints:['VirusTotal aggregates 70+ AV engines and checks file, URL, and IP reputation.','Maltego visualizes relationships between entities — turning data into link graphs.','MISP enables organizations to share and correlate threat intelligence.'],hard:null}},
+
+{w:21,ph:2,pl:'OSINT & CTI',title:'MISSION BRAVO ⚡ Log Analysis & SIEM',
+tasks:['TryHackMe: SOC Level 1 pathway — complete the full SIEM section','Memorize Windows Event IDs: 4624 (successful login), 4625 (failed), 4688 (new process), 4648 (explicit creds)','Sign up at education.splunk.com for free Splunk fundamentals training','TryHackMe: Complete Splunk: Basics room (free)','Practice reading a Linux auth.log — identify successful and failed SSH attempts','Milestone: Phase 2 complete. You have OSINT skills, a growing portfolio, and real analyst capabilities.'],
+res:['education.splunk.com — free Splunk training (Splunk is on almost every SOC job listing)','TryHackMe: Splunk Basics and SOC Level 1 pathway','ultimatewindowssecurity.com/securitylog/encyclopedia — Windows Event ID reference'],
+ch:{type:'findanomaly',title:'PHASE 2 BOSS: Log Anomaly Detection',desc:'Analyze this authentication log. One entry is a clear security incident. The others are normal or expected. Find it.',items:[{txt:'08:32:14 | jsmith | LOGIN SUCCESS | 192.168.1.45 | Tampa, FL | Normal hours',isA:false},{txt:'08:45:22 | mwilson | LOGIN SUCCESS | 192.168.1.89 | Tampa, FL | Normal hours',isA:false},{txt:'03:17:03 | admin | LOGIN SUCCESS | 185.220.101.42 | Kyiv, Ukraine | After 847 consecutive FAILED attempts',isA:true},{txt:'09:15:44 | ljones | LOGIN SUCCESS | 192.168.1.102 | Tampa, FL | Normal hours',isA:false},{txt:'10:02:11 | rgarcia | LOGIN FAILED | 192.168.1.56 | Tampa, FL | Wrong password',isA:false},{txt:'10:02:33 | rgarcia | LOGIN SUCCESS | 192.168.1.56 | Tampa, FL | Correct credentials on retry',isA:false}],hints:['Look at the time. When does this login occur relative to all the others?','Look at the IP address. Is it internal (192.168.x.x) or external?','847 failed attempts then one success at 3am from a foreign IP is a textbook brute-force attack.'],hard:null}},
+
+{w:22,ph:3,pl:'CYSA+ & CAREER',title:'Level Up: CySA+ Domain 1 — Security Operations',
+tasks:['Begin Professor Messer free CySA+ CS0-003 content on YouTube','Study Domain 1: Security Operations — SIEM, SOAR, threat hunting, monitoring workflows','Understand the difference between SIEM (aggregation/alerting) and SOAR (automated response)','TryHackMe: Begin the Security Operations pathway','Study SOC tiers: Tier 1 (triage), Tier 2 (investigation), Tier 3 (threat hunting and complex forensics)'],
+res:['professormesser.com — free CySA+ CS0-003 on YouTube','TryHackMe: Security Operations rooms','comptia.org/certifications/cybersecurity-analyst — download the free CySA+ exam objectives PDF'],
+ch:{type:'match',title:'SOC TIER TRIAGE',desc:'Match each security event to the appropriate SOC tier for initial handling.',pairs:[{l:'Phishing email reported by employee',r:'Tier 1 — triage and categorize'},{l:'Active ransomware spreading network-wide',r:'Tier 3 — critical, escalate immediately'},{l:'Deep forensic investigation of compromised system',r:'Tier 2 — in-depth analysis'},{l:'SIEM alert: 50 failed logins from one IP',r:'Tier 1 — routine alert review'},{l:'Proactive threat hunt for APT dwell time',r:'Tier 3 — senior analyst-led hunt'}],hints:['Tier 1 handles volume — routine alerts, initial triage, basic categorization.','Tier 2 gets confirmed incidents from Tier 1 needing deeper investigation.','Tier 3 is most senior — complex forensics, hunting, and major active incidents.'],hard:null}},
+
+{w:23,ph:3,pl:'CYSA+ & CAREER',title:'Vulnerability Management: Finding & Prioritizing Risk',
+tasks:['CySA+ Domain 2: Vulnerability Management — Professor Messer content','Study CVSS: understand Base Score, Temporal Score, and Environmental Score','Learn to read a CVE entry at nvd.nist.gov — practice on 3 different CVEs','Download Nessus Essentials (free for 16 IPs at tenable.com) — explore the scan interface','TryHackMe: Complete Vulnerability Management room'],
+res:['nvd.nist.gov — National Vulnerability Database (free, authoritative)','tenable.com/products/nessus/nessus-essentials — free scanner','first.org/cvss/calculator — interactive CVSS calculator'],
+ch:{type:'multiplechoice',title:'CVSS SCORING & RISK PRIORITIZATION',desc:'Apply CVSS knowledge and risk-based prioritization in real analyst scenarios.',qs:[{q:'A vulnerability has CVSS Base Score 9.8. How should it be treated?',opts:['Patch next quarter','Add to next maintenance window','Emergency — patch immediately','Monitor only, no action'],a:2},{q:'Critical CVE exists in your software, but your WAF already blocks the attack vector. Which CVSS component adjusts for this?',opts:['Base Score','Environmental Score','Attack Complexity','Temporal Score'],a:1},{q:'CVSS 7.2 on internet-facing login page vs CVSS 9.1 on isolated test server with no sensitive data. Which is higher priority?',opts:['9.1 — always patch highest CVSS first','7.2 — exposure and business context override raw score in risk-based prioritization','Both equally','Patch on schedule'],a:1}],hints:['CVSS: 0.1-3.9=Low, 4.0-6.9=Medium, 7.0-8.9=High, 9.0-10.0=Critical. 9.8 is fire-drill territory.','Environmental Score adjusts CVSS to reflect compensating controls already deployed.','Raw CVSS is a starting point. Real risk = exposure x exploitability x business impact.'],hard:null}},
+
+{w:24,ph:3,pl:'CYSA+ & CAREER',title:'Incident Response Deep Dive: Digital Forensics',
+tasks:['CySA+ Domain 3: Incident Response — Professor Messer content','Study digital forensics: chain of custody, evidence preservation, write blockers','TryHackMe: Complete Digital Forensics room','Learn what Volatility does for memory forensics — understand the purpose, not mastery','Write a phishing Incident Response playbook — every step from alert-received to case-closed'],
+res:['TryHackMe: Digital Forensics rooms','volatility3.readthedocs.io — memory forensics documentation','sans.org/incident-forms — free IR templates and playbook frameworks'],
+ch:{type:'order',title:'DIGITAL FORENSICS: Sequence the Steps',desc:'A laptop is potentially compromised. Put the forensic investigation steps in correct order.',items:[{txt:'Analyze the forensic image — files, logs, browser history, system artifacts',ord:5},{txt:'Document chain of custody — record every person who handled evidence and when',ord:2},{txt:'Isolate the device — disconnect network (Ethernet AND WiFi) immediately',ord:1},{txt:'Write the forensic report — findings, timeline, attribution, recommendations',ord:6},{txt:'Verify image integrity — compare hash of original drive vs forensic copy',ord:4},{txt:'Create forensic image of the drive using a write blocker',ord:3}],hints:['First action is always containment — prevent further compromise. Disconnect first.','Never analyze the original device. Work from a forensic copy to preserve evidence.','Hash verification proves your copy is bit-for-bit identical — essential for legal admissibility.'],hard:null}},
+
+{w:25,ph:3,pl:'CYSA+ & CAREER',title:'Communicating Risk: Reporting for the Business',
+tasks:['CySA+ Domain 4: Reporting and Communication — Professor Messer content','Practice: Take any CVE and write two versions — one for your security team, one for a non-technical CFO','Study qualitative vs quantitative risk assessment methodologies','Take your first full CySA+ practice exam at examtopics.com — record your score as a baseline','Document every wrong answer and why — find the pattern in your mistakes'],
+res:['examtopics.com — CySA+ CS0-003 practice questions (free)','Professor Messer CySA+ Domain 4','sans.org/reading-room — free papers on executive security reporting'],
+ch:{type:'multiplechoice',title:'EXECUTIVE TRANSLATION',desc:'Select the most effective way to communicate technical findings to executive leadership.',qs:[{q:'CVSS 9.8 RCE vulnerability on your public website. Which executive summary is most effective?',opts:['We found CVE-2024-XXXX, CVSS 9.8, in Apache 2.4.51 with a known Metasploit module.','Our public website has a critical flaw allowing attackers to take full server control without authentication. Emergency patching required within 24 hours.','There is a vulnerability in the software.','The HTTP daemon has an RCE vector via buffer overflow in the parsing module.'],a:1},{q:'CEO asks "how bad is this on a scale of 1-10?" Strongest response?',opts:['CVSS says 9.8 out of 10.','Technically very severe.','If exploited: full server compromise, all customer data at risk. Estimated breach cost: $2-3M. This is a 10 requiring immediate action.','Critical per NVD classification.'],a:2}],hints:['Executives understand business impact — money, reputation, legal risk — not CVSS numbers.','Lead with impact and urgency. Use the word "emergency" if it requires emergency action.','Quantify in dollars. $2M exposure lands harder than "critical severity" every time.'],hard:null}},
+
+{w:26,ph:3,pl:'CYSA+ & CAREER',title:'Brand Yourself: Resume & LinkedIn',
+tasks:['Build your cybersecurity resume — include Security+, CySA+ (in progress), TryHackMe profile URL, portfolio URL','Write your LinkedIn headline: example — "CTI Analyst | Security+ | OSINT | Psychology-Informed Threat Analysis"','Write a LinkedIn About section that leads with your value proposition, not your employment history','Connect with 10 cybersecurity professionals on LinkedIn with personalized notes (not the default message)','Research 10 companies hiring remote CTI/OSINT analysts — document their specific requirements'],
+res:['linkedin.com — optimize with security keywords from job descriptions','resumeworded.com — free ATS score checker','linkedin.com/jobs — set automated alerts for "threat intelligence analyst remote"'],
+ch:{type:'multiplechoice',title:'ATS RESUME OPTIMIZATION',desc:'Recruitment screening software and human reviewers reward specificity. Identify the stronger approach.',qs:[{q:'Which resume bullet point performs better for a CTI Analyst ATS scan?',opts:['Responsible for various security tasks and helped the team with investigations','Conducted OSINT investigations using Maltego, Shodan, and VirusTotal; produced 5 threat intelligence reports mapping actor TTPs to MITRE ATT&CK framework','Learned cybersecurity through online courses','Interested in threat intelligence and security'],a:1},{q:'Your psychology background is unique in cybersecurity. How should you frame it on a CTI resume?',opts:['Do not mention it — it is irrelevant','List under Education only','Frame as a differentiator: "Applies behavioral psychology to threat actor profiling and social engineering analysis"','Say you are changing careers from psychology'],a:2}],hints:['ATS systems match keywords from job descriptions. Specific tools, frameworks, and certs win.','Quantify everything. "5 threat intelligence reports" beats "wrote reports" every time.','Your psychology background is genuinely rare in CTI — it is an asset. Frame it proactively.'],hard:null}},
+
+{w:27,ph:3,pl:'CYSA+ & CAREER',title:'First Contact: Applying & Networking',
+tasks:['Apply to 5-10 positions this week — yes, even before CySA+ is complete. Security+ and a portfolio is enough to apply.','Set job alerts on LinkedIn, Indeed, Dice (dice.com), and Glassdoor for "threat intelligence analyst remote"','Join Discord communities: TryHackMe Discord, TCM Security Discord — introduce yourself','Reach out to 2 people in your target role via LinkedIn for a brief informational conversation','Take CySA+ practice exam #2 — compare to your baseline score'],
+res:['dice.com — tech-focused job board, good for cybersecurity roles','linkedin.com/jobs — set automated job alerts','tryhackme.com/discord — community Discord server'],
+ch:{type:'multiplechoice',title:'APPLICATION STRATEGY',desc:'Make smart decisions about your job search approach.',qs:[{q:'A CTI Analyst role requires "2-3 years experience." You have Security+, a portfolio, and 18 months of structured study. Apply?',opts:['No — you do not meet the requirement','Yes — experience requirements are aspirational. Certs, portfolio, and demonstrable skills substitute. Apply.','Only with a referral first','Wait until CySA+ is complete'],a:1},{q:'Which LinkedIn outreach message gets a response?',opts:['"Hi, I noticed you work at [Company]. I am job hunting. Can you refer me?"','"Hi [Name], your path into CTI caught my attention. I am making a similar pivot. Would you have 15 minutes to share what skills were most valuable breaking in?"','"Hello. I have Security+. Please help."','A connection request with no message'],a:1}],hints:['Job requirements are wish lists. Most hiring managers expect candidates to meet 60-70%.','Informational requests perform best when they ask one specific, thoughtful question.','A portfolio plus demonstrable work often outweighs years of experience for entry-level roles.'],hard:null}},
+
+{w:28,ph:3,pl:'CYSA+ & CAREER',title:'The Gauntlet: Interview Preparation',
+tasks:['Research and write out answers to 10 common CTI/OSINT interview questions — write them, do not just think about them','Practice the STAR method for behavioral questions: Situation, Task, Action, Result','Prepare to walk through your portfolio in 3 minutes per investigation — practice out loud, alone if needed','Record yourself answering questions on video. Watch it back. Uncomfortable but essential.','Take CySA+ practice exam #3 — targeting 80%+ before scheduling the real exam'],
+res:['YouTube: "CTI analyst interview questions" — multiple channels have solid question lists','glassdoor.com — read interview reviews for CTI/SOC roles at target companies','linkedin.com/interview-prep — free interview practice tool'],
+ch:{type:'multiplechoice',title:'INTERVIEW SIMULATION',desc:'Select the strongest answer to each common CTI interview question.',qs:[{q:'"Walk me through investigating a suspicious email reported by an employee."',opts:['"I would delete it and tell the employee to be more careful."','"I would examine headers to verify SPF/DKIM/DMARC, check the sender domain in threat intel feeds, analyze attachments via VirusTotal, inspect URLs with URLScan.io, and check recipient pattern to determine if this is targeted or part of a campaign."','"I would forward it to IT."','"I would Google the sender name."'],a:1},{q:'"What is the Pyramid of Pain and why does it matter?"',opts:['"A pain management concept used in security operations."','"A model ranking IOC types by how hard they are for adversaries to change — from file hashes (trivial) to TTPs (extremely costly). It helps focus defensive effort on higher-value detections."','"It describes how hard it is to become a security analyst."','"A MITRE ATT&CK visualization."'],a:1}],hints:['Answer technical questions with specific tools and methodologies, not vague generalities.','The Pyramid of Pain was created by David Bianco — knowing the source shows depth.','Structure answers: what you do, how you do it, what you look for, what you conclude.'],hard:null}},
+
+{w:29,ph:3,pl:'CYSA+ & CAREER',title:'Portfolio Final Polish',
+tasks:['Review all portfolio investigations — update any that reference outdated tools or frameworks','Ensure each has: Executive Summary, Methodology, Findings, IOCs where applicable, Recommendations','Add a clear About page: your background, OSINT/CTI focus, and what kind of analyst you are becoming','Reach out to 3 more network connections — keep the informational conversations going','Take final CySA+ practice exam — if consistently 80%+, schedule the exam now'],
+res:['Your existing portfolio — review and polish','grammarly.com — free grammar check for professional writing quality','pages.github.com — verify your hosting is clean and accessible'],
+ch:{type:'multiplechoice',title:'PORTFOLIO FINAL CHECK',desc:'Last quality review before your portfolio goes live to hiring managers.',qs:[{q:'A recruiter has 45 seconds on your portfolio. What should appear first?',opts:['Your education history','A clear header: name, focus area (CTI/OSINT), certifications, and a 2-sentence summary of your analytical approach','Your most recent investigation buried in the middle','A personal photo and bio'],a:1},{q:'Your second investigation contains data from a practice OSINT exercise involving a real person. What do you do?',opts:['Publish as-is — you collected it legally','Anonymize or fictionalize any real personally identifiable information before publishing','Do not publish any investigations with real data','Password-protect the page'],a:1}],hints:['Recruiters spend 7-10 seconds on initial review. First impression is everything.','Even legal collection does not make publishing PII ethical. Fictionalize or use clearly public figures only.'],hard:null}},
+
+{w:30,ph:3,pl:'CYSA+ & CAREER',title:'MISSION COMPLETE ⚡ The Final Push',
+tasks:['Register and take the CySA+ CS0-003 exam — you have prepared. It is time.','Add CySA+ to LinkedIn and resume the day you receive results — do not wait','Target 10+ job applications per week until you receive an offer — volume plus quality','Follow up on applications submitted more than 2 weeks ago with a professional, brief note','Write one paragraph: what you have learned, who you have become, and what kind of analyst you want to be.'],
+res:['comptia.org — CySA+ exam registration','linkedin.com/jobs — continue automated job alerts','Your portfolio — your most important job search asset'],
+ch:{type:'multiquestion',title:'⚡ FINAL BOSS: The Complete Analyst',desc:'Five questions spanning the full 30-week journey. Score 4 out of 5 to unlock your CIPHER completion badge. You have earned this.',thresh:4,qs:[{q:'Email Return-Path does not match From: and SPF fails. Most likely attack?',opts:['SQL injection','Email spoofing/phishing','DDoS','ARP poisoning'],a:1},{q:'In the Pyramid of Pain, which IOC type is hardest for an adversary to change?',opts:['IP addresses','File hashes','Domain names','TTPs'],a:3},{q:'18-month undetected intrusion against a government ministry. Custom malware, no ransom, data exfiltrated. No public claim.',opts:['Cybercriminal ransomware group','Hacktivist collective','Nation-state APT','Script kiddie'],a:2},{q:'You arrive first on scene at a potentially compromised laptop. Your FIRST action?',opts:['Run antivirus immediately','Isolate the device from the network','Create forensic image','Interview the user'],a:1},{q:'Which best demonstrates the value of a Psychology degree in a CTI analyst role?',opts:['No value — CTI is purely technical','Understanding behavioral patterns of threat actors and why social engineering exploits cognitive biases','Helping coworkers manage stress','Writing better emails'],a:1}],hints:['Email spoofing manipulates visible headers while actual sending infrastructure differs.','TTPs are at the top of the Pyramid of Pain — deep adversary methodology, not just technical artifacts.','Your psychology degree is a genuine differentiator. Lean into it.'],hard:null}}
+];
+
+
+// ─── FIREBASE INIT ────────────────────────────────────────────────────────────
+const firebaseConfig = {
+  apiKey: "AIzaSyAGzA3ERmn-FfAUDR0eN_Ler91AQzRi_8Q",
+  authDomain: "cipher-93dc4.firebaseapp.com",
+  projectId: "cipher-93dc4",
+  storageBucket: "cipher-93dc4.firebasestorage.app",
+  messagingSenderId: "1037218121444",
+  appId: "1:1037218121444:web:7e1193ed6789ea600c4ef1"
+};
+firebase.initializeApp(firebaseConfig);
+const db = firebase.firestore();
+
+// ─── AUTH & SYNC ──────────────────────────────────────────────────────────────
+let currentUser = null;
+let syncTimeout = null;
+
+function setSyncStatus(status) {
+  const dot = document.getElementById('syncDot');
+  if (!dot) return;
+  dot.className = 'sync-dot ' + status;
+  dot.title = status === 'synced' ? 'Progress saved' : status === 'syncing' ? 'Saving...' : 'Sync error - progress saved locally';
+}
+
+async function doLogin() {
+  const userEl = document.getElementById('loginUser');
+  const pinEl = document.getElementById('loginPin');
+  const btn = document.getElementById('loginBtn');
+  const username = (userEl.value || '').trim().toLowerCase().replace(/[^a-z0-9_]/g, '');
+  const pin = (pinEl.value || '').trim();
+  if (!username || username.length < 2) { showLoginMsg('Username must be at least 2 characters.', 'err'); return; }
+  if (!/^[0-9]{4}$/.test(pin)) { showLoginMsg('PIN must be exactly 4 digits.', 'err'); return; }
+  btn.disabled = true;
+  showLoginMsg('Connecting...', 'info');
+  try {
+    const docRef = db.collection('cipher_users').doc(username);
+    const doc = await docRef.get();
+    if (!doc.exists) {
+      await docRef.set({ pin, created: firebase.firestore.FieldValue.serverTimestamp(), progress: { done: {}, weeks: [], times: {}, xp: 0 } });
+      showLoginMsg('Profile created! Welcome to CIPHER.', 'ok');
+      setTimeout(() => launchApp(username, { done: {}, weeks: [], times: {}, xp: 0 }), 800);
+    } else {
+      const data = doc.data();
+      if (data.pin !== pin) { showLoginMsg('Incorrect PIN. Try again.', 'err'); btn.disabled = false; return; }
+      const progress = data.progress || { done: {}, weeks: [], times: {}, xp: 0 };
+      showLoginMsg('Access granted. Loading your progress...', 'ok');
+      setTimeout(() => launchApp(username, progress), 600);
+    }
+  } catch (e) {
+    console.error(e);
+    showLoginMsg('Connection failed. Try again.', 'err');
+    btn.disabled = false;
+  }
+}
+
+function showLoginMsg(msg, type) {
+  const el = document.getElementById('loginMsg');
+  if (el) { el.textContent = msg; el.className = 'login-msg ' + type; }
+}
+
+function launchApp(username, progress) {
+  currentUser = username;
+  ST = { done: progress.done || {}, weeks: progress.weeks || [], times: progress.times || {}, xp: progress.xp || 0 };
+  localStorage.setItem('cipher_v2', JSON.stringify(ST));
+  localStorage.setItem('cipher_user', username);
+  document.getElementById('loginScreen').classList.add('hidden');
+  const pill = document.getElementById('userPill');
+  if (pill) pill.style.display = 'flex';
+  const pillName = document.getElementById('userPillName');
+  if (pillName) pillName.textContent = username;
+  setSyncStatus('synced');
+  renderAll();
+  updateHeader();
+}
+
+function doLogout() {
+  if (!confirm('Sign out? Your progress is saved to the cloud.')) return;
+  currentUser = null;
+  localStorage.removeItem('cipher_user');
+  ST = { done: {}, weeks: [], times: {}, xp: 0 };
+  document.getElementById('loginScreen').classList.remove('hidden');
+  const pill = document.getElementById('userPill');
+  if (pill) pill.style.display = 'none';
+  document.getElementById('loginBtn').disabled = false;
+  document.getElementById('loginUser').value = '';
+  document.getElementById('loginPin').value = '';
+  showLoginMsg('New username = creates profile. Returning = loads your progress.', 'info');
+  [1,2,3].forEach(p => { const el = document.getElementById('wp'+p); if(el) el.innerHTML = ''; });
+  updateHeader();
+}
+
+function scheduleSyncToFirestore() {
+  if (!currentUser) return;
+  setSyncStatus('syncing');
+  if (syncTimeout) clearTimeout(syncTimeout);
+  syncTimeout = setTimeout(async () => {
+    try {
+      await db.collection('cipher_users').doc(currentUser).update({
+        progress: { done: ST.done, weeks: ST.weeks, times: ST.times, xp: ST.xp },
+        lastSeen: firebase.firestore.FieldValue.serverTimestamp()
+      });
+      setSyncStatus('synced');
+    } catch(e) {
+      console.error('Sync failed:', e);
+      setSyncStatus('error');
+    }
+  }, 2000);
+}
+
+// STATE
+let ST={done:{},weeks:[],times:{},xp:0};
+function load(){try{let s=localStorage.getItem('cipher_v2');if(s){ST=JSON.parse(s);}}catch(e){}}
+function save(){try{localStorage.setItem('cipher_v2',JSON.stringify(ST));}catch(e){}scheduleSyncToFirestore();}
+function isUnlocked(w){if(w===1)return true;return ST.weeks.includes(w-1);}
+function isComplete(w){return ST.weeks.includes(w);}
+function tasksDone(w){let wk=CUR.find(x=>x.w===w);let d=ST.done[w]||[];return d.length===wk.tasks.length;}
+function isSpeedrun(w){let t=ST.times[w];if(!t)return false;return(Date.now()-t)<345600000;}// 4 days
+
+// XP
+function calcXP(w){return 100+(w-1)*10;}
+
+// RENDER ALL
+function renderAll(){
+  CUR.forEach(wk=>{
+    let cont=document.getElementById('wp'+wk.ph);
+    if(!cont)return;
+    let el=document.getElementById('wk'+wk.w);
+    if(!el){el=document.createElement('div');el.id='wk'+wk.w;cont.appendChild(el);}
+    renderWeek(wk.w,el);
+  });
+  updateHeader();
+}
+
+function renderWeek(wn,el){
+  let wk=CUR.find(x=>x.w===wn);
+  let unlocked=isUnlocked(wn);
+  let complete=isComplete(wn);
+  let done=ST.done[wn]||[];
+  let pn=wk.ph;
+  let cls=complete?'wd':unlocked?'wa':'wl';
+  let pcls=complete?'wd':unlocked?'wa p'+pn:'wl';
+  let icon=complete?'✓':unlocked?'▶':'🔒';
+  let bc='b'+pn;
+  let btnc=pn===1?'bg':pn===2?'bc':'ba';
+  let doneCount=done.length;
+  let totalTasks=wk.tasks.length;
+  let allDone=tasksDone(wn);
+
+  let taskHtml=wk.tasks.map((t,i)=>{
+    let isDone=done.includes(i);
+    return`<li class="ti${isDone?' done':''}" onclick="toggleTask(${wn},${i})"><span class="tcb">${isDone?'✓':''}</span><span class="ttxt">${t}</span></li>`;
+  }).join('');
+
+  let resHtml=wk.res.map(r=>`<div class="ri">${r}</div>`).join('');
+
+  let chalHtml='';
+  if(!unlocked){
+    chalHtml='';
+  } else if(complete){
+    chalHtml=`<div class="clocked" style="color:var(--g);border-color:rgba(0,255,136,.2)">✓ CHALLENGE COMPLETE — WEEK UNLOCKED</div>`;
+  } else if(allDone){
+    chalHtml=`<button class="btn ${btnc}" onclick="openChal(${wn})">▶ EXECUTE CHALLENGE</button>`;
+  } else {
+    chalHtml=`<div class="clocked">Complete all tasks above to unlock the challenge</div>`;
+  }
+
+  el.className=`wk ${pcls}`;
+  el.innerHTML=`
+    <div class="wkhdr" onclick="toggleWk(${wn})">
+      <span class="wknum">WK-${String(wn).padStart(2,'0')}</span>
+      <span class="wkicon">${icon}</span>
+      <span class="wktitle">${wk.title}</span>
+      <span class="badge ${bc}">${wk.pl}</span>
+      <span class="wkprog">${doneCount}/${totalTasks}</span>
+    </div>
+    <div class="wkbody${unlocked&&!complete?' exp':''}" id="wkb${wn}">
+      <div class="div"></div>
+      <div class="slbl">// Tasks this week</div>
+      <ul class="tlist">${taskHtml}</ul>
+      <div class="slbl">// Resources</div>
+      <div class="rlist">${resHtml}</div>
+      <div class="carea">${chalHtml}</div>
+    </div>`;
+}
+
+function toggleWk(wn){
+  if(!isUnlocked(wn))return;
+  let b=document.getElementById('wkb'+wn);
+  if(b)b.classList.toggle('exp');
+}
+
+function toggleTask(wn,idx){
+  if(!isUnlocked(wn)||isComplete(wn))return;
+  let d=ST.done[wn]||[];
+  let i=d.indexOf(idx);
+  if(i>=0)d.splice(i,1);else d.push(idx);
+  ST.done[wn]=d;
+  if(!ST.times[wn])ST.times[wn]=Date.now();
+  save();
+  let el=document.getElementById('wk'+wn);
+  if(el)renderWeek(wn,el);
+  updateHeader();
+}
+
+function updateHeader(){
+  let total=CUR.length;
+  let done=ST.weeks.length;
+  let pct=Math.round(done/total*100);
+  document.getElementById('sw').textContent=done+'/'+total;
+  document.getElementById('gbar').style.width=pct+'%';
+  document.getElementById('sxp').textContent=ST.xp||0;
+  // current phase
+  let maxW=ST.weeks.length?Math.max(...ST.weeks):0;
+  let nextW=maxW+1;
+  let nextWk=CUR.find(x=>x.w===nextW);
+  let ph=nextWk?nextWk.ph:(maxW===30?3:1);
+  document.getElementById('sp').textContent=ph;
+}
+
+function showPh(n){
+  [1,2,3].forEach(i=>{
+    document.getElementById('ph'+i).classList.toggle('vis',i===n);
+    let t=document.getElementById('t'+i);
+    t.className='ptab'+(i===n?' a'+i:'');
+  });
+}
+
+function confirmReset(){
+  if(confirm('Reset ALL progress? This cannot be undone.')){
+    ST={done:{},weeks:[],times:{1:Date.now()},xp:0};
+    save();
+    // Also clear cloud
+    if(currentUser){
+      db.collection('users').doc(currentUser).update({
+        done:{}, weeks:[], times:{1:Date.now()}, xp:0
+      }).catch(e=>console.error(e));
+    }
+    renderAll();
+    updateHeader();
+  }
+}
+
+// MODAL STATE
+let curWk=null,curHard=false,curHints=0,gameState={};
+
+function openChal(wn){
+  curWk=wn;
+  curHard=false;
+  curHints=0;
+  gameState={};
+  let wk=CUR.find(x=>x.w===wn);
+  let ch=wk.ch;
+  let pn=wk.ph;
+  let eyecls=pn===1?'e1':pn===3?'e3':'';
+  document.getElementById('meb').className='meb '+eyecls;
+  document.getElementById('meb').textContent='WEEK '+wn+' — '+wk.pl;
+  document.getElementById('mtitle').textContent=ch.title;
+  let sprun=isSpeedrun(wn)&&ch.hard;
+  buildModal(ch,sprun,pn);
+  document.getElementById('ov').classList.add('open');
+}
+
+function buildModal(ch,sprun,pn){
+  let mbody=document.getElementById('mbody');
+  let mfoot=document.getElementById('mfoot');
+  let dcls=pn===1?'d1':pn===3?'d3':'';
+  let html='';
+  if(sprun&&!curHard){
+    html+=`<div class="spbanner">⚡ SPEEDRUN DETECTED — You completed this week fast. Standard challenge available, or switch to HARD MODE below.</div>`;
+    html+=`<div class="hmbr"><span>⚡ Hard Mode Available</span><button class="hmtog" id="hmtog" onclick="switchHard(${pn})">ACTIVATE HARD MODE</button></div>`;
+  }
+  let c=curHard&&ch.hard?ch.hard:ch;
+  html+=`<div class="cdesc ${dcls}">${c.desc}</div>`;
+  html+=buildGame(c,pn);
+  html+=`<div class="fb" id="fb"></div>`;
+  html+=`<div class="harea" id="harea"></div>`;
+  mbody.innerHTML=html;
+  mfoot.innerHTML=`<div class="hctr" id="hctr">Hints used: 0/${ch.hints.length}</div><div style="display:flex;gap:.6rem;flex-wrap:wrap"><button class="bhint btn" onclick="revHint()">▲ REVEAL HINT</button><button class="bsub btn" onclick="submitChal()">SUBMIT ANSWER</button></div>`;
+}
+
+function switchHard(pn){
+  curHard=!curHard;
+  let btn=document.getElementById('hmtog');
+  if(btn){btn.textContent=curHard?'DEACTIVATE HARD MODE':'ACTIVATE HARD MODE';btn.classList.toggle('on',curHard);}
+  let wk=CUR.find(x=>x.w===curWk);
+  let ch=curHard&&wk.ch.hard?wk.ch.hard:wk.ch;
+  let dcls=pn===1?'d1':pn===3?'d3':'';
+  let sprun=isSpeedrun(curWk)&&wk.ch.hard;
+  gameState={};
+  let mbody=document.getElementById('mbody');
+  let html='';
+  if(sprun){
+    html+=`<div class="spbanner">⚡ SPEEDRUN DETECTED — Hard Mode is ${curHard?'ACTIVE':'available'}.</div>`;
+    html+=`<div class="hmbr"><span>⚡ Hard Mode</span><button class="hmtog ${curHard?'on':''}" id="hmtog" onclick="switchHard(${pn})">${curHard?'DEACTIVATE HARD MODE':'ACTIVATE HARD MODE'}</button></div>`;
+  }
+  html+=`<div class="cdesc ${dcls}">${ch.desc}</div>`;
+  html+=buildGame(ch,pn);
+  html+=`<div class="fb" id="fb"></div>`;
+  html+=`<div class="harea" id="harea"></div>`;
+  mbody.innerHTML=html;
+  curHints=0;
+  document.getElementById('hctr').textContent='Hints used: 0/'+wk.ch.hints.length;
+}
+
+function buildGame(ch,pn){
+  if(ch.type==='cipher')return buildCipher(ch);
+  if(ch.type==='match')return buildMatch(ch);
+  if(ch.type==='multiplechoice')return buildMC(ch);
+  if(ch.type==='order')return buildOrder(ch);
+  if(ch.type==='findanomaly')return buildAnomaly(ch);
+  if(ch.type==='terminal')return buildTerminal(ch);
+  if(ch.type==='multiquestion')return buildMQ(ch);
+  return'';
+}
+
+function buildCipher(ch){
+  return`<div class="cbox">${ch.enc}</div><input class="cinp" id="cans" type="text" placeholder="Type your decoded answer here..." autocomplete="off"/>`;
+}
+
+function buildMatch(ch){
+  let pairs=[...ch.pairs];
+  let rights=pairs.map(p=>p.r);
+  // shuffle rights
+  for(let i=rights.length-1;i>0;i--){let j=Math.floor(Math.random()*(i+1));[rights[i],rights[j]]=[rights[j],rights[i]];}
+  gameState.matchPairs=pairs;
+  gameState.matchRights=rights;
+  gameState.matched=[];
+  gameState.selLeft=null;
+  gameState.selRight=null;
+  let lh=pairs.map((p,i)=>`<div class="mit" id="ml${i}" onclick="mLeft(${i})">${p.l}</div>`).join('');
+  let rh=rights.map((r,i)=>`<div class="mit" id="mr${i}" onclick="mRight(${i})">${r}</div>`).join('');
+  return`<div style="font-family:'Share Tech Mono',monospace;font-size:.68rem;color:var(--t2);margin-bottom:.65rem">Tap an item on the left, then tap its match on the right.</div><div class="mwrap"><div class="mcol"><div class="mclbl">Identify</div>${lh}</div><div class="mcol"><div class="mclbl">Match to</div>${rh}</div></div>`;
+}
+
+function mLeft(i){
+  if(gameState.matched.some(m=>m.li===i))return;
+  gameState.selLeft=i;
+  document.querySelectorAll('[id^="ml"]').forEach((el,idx)=>el.classList.toggle('ms',idx===i&&!gameState.matched.some(m=>m.li===idx)));
+  if(gameState.selRight!==null)checkMatch();
+}
+
+function mRight(i){
+  if(gameState.matched.some(m=>m.ri===i))return;
+  gameState.selRight=i;
+  document.querySelectorAll('[id^="mr"]').forEach((el,idx)=>el.classList.toggle('ms',idx===i&&!gameState.matched.some(m=>m.ri===idx)));
+  if(gameState.selLeft!==null)checkMatch();
+}
+
+function checkMatch(){
+  let li=gameState.selLeft,ri=gameState.selRight;
+  let pair=gameState.matchPairs[li];
+  let rightVal=gameState.matchRights[ri];
+  if(pair.r===rightVal){
+    gameState.matched.push({li,ri});
+    document.getElementById('ml'+li).className='mit mm';
+    document.getElementById('mr'+ri).className='mit mm';
+    if(gameState.matched.some(m=>m.li===li))document.getElementById('ml'+li).classList.add('md');
+    if(gameState.matched.some(m=>m.ri===ri))document.getElementById('mr'+ri).classList.add('md');
+  } else {
+    let le=document.getElementById('ml'+li),re=document.getElementById('mr'+ri);
+    le.classList.add('mw');re.classList.add('mw');
+    setTimeout(()=>{le.classList.remove('mw','ms');re.classList.remove('mw','ms');},600);
+  }
+  gameState.selLeft=null;gameState.selRight=null;
+}
+
+function buildMC(ch){
+  let keys=['A','B','C','D'];
+  gameState.mcSel={};
+  return`<div class="mcqs">${ch.qs.map((q,qi)=>`<div class="mqb"><div class="mqnum">Q${qi+1}</div><div class="mqt">${q.q}</div><div class="mopts">${q.opts.map((o,oi)=>`<div class="mopt" id="mc${qi}_${oi}" onclick="mcSel(${qi},${oi})"><span class="mkey">${keys[oi]}</span>${o}</div>`).join('')}</div></div>`).join('')}</div>`;
+}
+
+function mcSel(qi,oi){
+  let wk=CUR.find(x=>x.w===curWk);
+  let ch=curHard&&wk.ch.hard?wk.ch.hard:wk.ch;
+  gameState.mcSel=gameState.mcSel||{};
+  gameState.mcSel[qi]=oi;
+  let n=ch.qs[qi].opts.length;
+  for(let i=0;i<n;i++){
+    let el=document.getElementById('mc'+qi+'_'+i);
+    if(el)el.classList.toggle('sel',i===oi);
+  }
+}
+
+function buildOrder(ch){
+  let items=[...ch.items];
+  // shuffle pool
+  for(let i=items.length-1;i>0;i--){let j=Math.floor(Math.random()*(i+1));[items[i],items[j]]=[items[j],items[i]];}
+  gameState.orderItems=items;
+  gameState.orderSeq=[];
+  gameState.orderN=items.length;
+  let ph=`<div style="font-family:'Share Tech Mono',monospace;font-size:.68rem;color:var(--t2);margin-bottom:.65rem">Tap items on the left to place them in order. Tap a placed item to remove it.</div><div class="owrap"><div class="opwrap"><div class="olbl">Available — click to place in order</div><div id="opool">${items.map((it,i)=>`<div class="oit" id="oi${i}" onclick="oClick(${i})">${it.txt}</div>`).join('')}</div></div><div class="oswrap"><div class="olbl">Your sequence</div><div id="oseq">${items.map((_,i)=>`<div class="osl" id="os${i}"><span class="osn">${i+1}</span><span id="ost${i}"></span></div>`).join('')}</div></div></div>`;
+  return ph;
+}
+
+function oClick(i){
+  let item=gameState.orderItems[i];
+  if(gameState.orderSeq.includes(i))return;
+  let pos=gameState.orderSeq.length;
+  gameState.orderSeq.push(i);
+  document.getElementById('oi'+i).classList.add('op');
+  let sl=document.getElementById('os'+pos);
+  let st=document.getElementById('ost'+pos);
+  if(sl){sl.classList.add('of');sl.onclick=()=>oRemove(pos);}
+  if(st)st.textContent=item.txt;
+}
+
+function oRemove(pos){
+  // remove from seq at pos and after
+  let removed=gameState.orderSeq.splice(pos);
+  // restore pool items
+  removed.forEach(i=>{document.getElementById('oi'+i).classList.remove('op');});
+  // clear slots from pos onward
+  for(let p=pos;p<gameState.orderN;p++){
+    let sl=document.getElementById('os'+p);
+    let st=document.getElementById('ost'+p);
+    if(sl){sl.classList.remove('of');sl.onclick=null;}
+    if(st)st.textContent='';
+  }
+}
+
+function buildAnomaly(ch){
+  let items=[...ch.items];
+  for(let i=items.length-1;i>0;i--){let j=Math.floor(Math.random()*(i+1));[items[i],items[j]]=[items[j],items[i]];}
+  gameState.anomalyItems=items;
+  return`<div class="agrid">${items.map((it,i)=>`<div class="ait" id="ai${i}" onclick="aClick(${i})">${it.txt}</div>`).join('')}</div>`;
+}
+
+function aClick(i){
+  let item=gameState.anomalyItems[i];
+  let els=document.querySelectorAll('[id^="ai"]');
+  if(item.isA){
+    els[i].classList.add('aok');
+    showFb(true,'Correct. That is the anomaly — well spotted.');
+    setTimeout(()=>markOK(),1200);
+  } else {
+    els[i].classList.add('ano');
+    setTimeout(()=>els[i].classList.remove('ano'),600);
+    showFb(false,'Not quite. Look more carefully at each option.');
+  }
+}
+
+function buildTerminal(ch){
+  gameState.termAnswers={};
+  return`<div class="tblock">${ch.qs.map((q,i)=>`<div class="tqb"><div class="tqlbl">${q.lbl}</div><div class="tprompt">${q.prompt}</div><input class="cinp" id="ta${i}" type="text" placeholder="type command..." autocomplete="off" style="margin-top:.35rem;background:#111;border-color:#1a1a1a;"/></div>`).join('')}</div>`;
+}
+
+function buildMQ(ch){
+  let keys=['A','B','C','D'];
+  gameState.mqSel={};
+  return`<div class="mcqs">${ch.qs.map((q,qi)=>`<div class="mqb"><div class="mqnum">Q${qi+1} of ${ch.qs.length}</div><div class="mqt">${q.q}</div><div class="mopts">${q.opts.map((o,oi)=>`<div class="mopt" id="mq${qi}_${oi}" onclick="mqSel(${qi},${oi})"><span class="mkey">${keys[oi]}</span>${o}</div>`).join('')}</div></div>`).join('')}</div>`;
+}
+
+function mqSel(qi,oi){
+  let wk=CUR.find(x=>x.w===curWk);
+  let ch=curHard&&wk.ch.hard?wk.ch.hard:wk.ch;
+  gameState.mqSel=gameState.mqSel||{};
+  gameState.mqSel[qi]=oi;
+  let n=ch.qs[qi].opts.length;
+  for(let i=0;i<n;i++){
+    let el=document.getElementById('mq'+qi+'_'+i);
+    if(el)el.classList.toggle('sel',i===oi);
+  }
+}
+
+function revHint(){
+  let wk=CUR.find(x=>x.w===curWk);
+  let ch=curHard&&wk.ch.hard?wk.ch.hard:wk.ch;
+  if(curHints>=ch.hints.length){showFb(false,'No more hints available.');return;}
+  let hint=ch.hints[curHints];
+  curHints++;
+  let ha=document.getElementById('harea');
+  if(ha)ha.innerHTML+='<div class="hi slidein">'+hint+'</div>';
+  let hc=document.getElementById('hctr');
+  if(hc)hc.textContent='Hints used: '+curHints+'/'+ch.hints.length;
+}
+
+function submitChal(){
+  let wk=CUR.find(x=>x.w===curWk);
+  let ch=curHard&&wk.ch.hard?wk.ch.hard:wk.ch;
+  if(ch.type==='cipher'){
+    let v=(document.getElementById('cans').value||'').trim().toLowerCase();
+    let a=ch.ans.toLowerCase();
+    if(v===a){showFb(true,'Access granted. Correct answer.');setTimeout(()=>markOK(),1000);}
+    else showFb(false,'Incorrect. Try again or use a hint.');
+  } else if(ch.type==='match'){
+    let n=gameState.matchPairs.length;
+    if(gameState.matched.length===n){showFb(true,'All pairs matched correctly.');setTimeout(()=>markOK(),1000);}
+    else showFb(false,'Not all pairs matched yet. Keep going.');
+  } else if(ch.type==='multiplechoice'){
+    let sel=gameState.mcSel||{};
+    let allOk=true;
+    ch.qs.forEach((q,qi)=>{
+      let n=q.opts.length;
+      for(let i=0;i<n;i++){
+        let el=document.getElementById('mc'+qi+'_'+i);
+        if(el){el.classList.remove('ok','no');}
+      }
+      if(sel[qi]===q.a){
+        let el=document.getElementById('mc'+qi+'_'+q.a);
+        if(el)el.classList.add('ok');
+      } else {
+        allOk=false;
+        if(sel[qi]!==undefined){let el=document.getElementById('mc'+qi+'_'+sel[qi]);if(el)el.classList.add('no');}
+        let el=document.getElementById('mc'+qi+'_'+q.a);
+        if(el)el.classList.add('ok');
+      }
+    });
+    if(allOk){showFb(true,'All correct. Moving on.');setTimeout(()=>markOK(),1000);}
+    else showFb(false,'Some answers were incorrect — correct answers shown in green.');
+  } else if(ch.type==='order'){
+    let seq=gameState.orderSeq;
+    let n=gameState.orderN;
+    if(seq.length<n){showFb(false,'Place all items in the sequence first.');return;}
+    let correct=true;
+    seq.forEach((itemIdx,pos)=>{
+      let item=gameState.orderItems[itemIdx];
+      let sl=document.getElementById('os'+pos);
+      if(sl)sl.classList.remove('of','oo','ox');
+      if(item.ord===pos+1){if(sl)sl.classList.add('oo');}
+      else{if(sl)sl.classList.add('ox');correct=false;}
+    });
+    if(correct){showFb(true,'Correct sequence. Well done.');setTimeout(()=>markOK(),1000);}
+    else showFb(false,'Some items are in the wrong position — correct slots shown in green, incorrect in red.');
+  } else if(ch.type==='terminal'){
+    let allOk=true;
+    ch.qs.forEach((q,i)=>{
+      let v=(document.getElementById('ta'+i).value||'').trim().toLowerCase();
+      let a=q.ans.toLowerCase();
+      let alts=(q.alts||[]).map(x=>x.toLowerCase());
+      if(v!==a&&!alts.includes(v))allOk=false;
+    });
+    if(allOk){showFb(true,'All commands correct. Terminal access granted.');setTimeout(()=>markOK(),1000);}
+    else showFb(false,'One or more commands are incorrect. Check your syntax.');
+  } else if(ch.type==='multiquestion'){
+    let sel=gameState.mqSel||{};
+    let score=0;
+    ch.qs.forEach((q,qi)=>{
+      let n=q.opts.length;
+      for(let i=0;i<n;i++){
+        let el=document.getElementById('mq'+qi+'_'+i);
+        if(el)el.classList.remove('ok','no');
+      }
+      if(sel[qi]===q.a){
+        score++;
+        let el=document.getElementById('mq'+qi+'_'+q.a);
+        if(el)el.classList.add('ok');
+      } else {
+        if(sel[qi]!==undefined){let el=document.getElementById('mq'+qi+'_'+sel[qi]);if(el)el.classList.add('no');}
+        let el=document.getElementById('mq'+qi+'_'+q.a);
+        if(el)el.classList.add('ok');
+      }
+    });
+    let pass=score>=ch.thresh;
+    let sb=document.getElementById('mbody');
+    let sc=`<div class="mqs-score ${pass?'mqs-pass':'mqs-fail'}">Score: <span>${score}/${ch.qs.length}</span> &mdash; ${pass?'PASSED':'FAILED (need '+ch.thresh+')'}</div>`;
+    if(sb){
+      let existing=sb.querySelector('.mqs-score');
+      if(existing)existing.remove();
+      sb.insertAdjacentHTML('afterbegin',sc);
+    }
+    if(pass){showFb(true,'Phase boss defeated. Outstanding.');setTimeout(()=>markOK(),1500);}
+    else showFb(false,'Not enough correct answers. Review the marked questions and retry.');
+  }
+}
+
+function showFb(ok,msg){
+  let fb=document.getElementById('fb');
+  if(fb){fb.className='fb '+(ok?'ok':'no');fb.textContent=ok?'✓ '+msg:'✗ '+msg;}
+}
+
+function markOK(){
+  if(ST.weeks.includes(curWk))return;
+  ST.weeks.push(curWk);
+  let xp=calcXP(curWk);
+  ST.xp=(ST.xp||0)+xp;
+  save();
+  let wk=CUR.find(x=>x.w===curWk);
+  // show success screen
+  let mb=document.getElementById('mbody');
+  let mf=document.getElementById('mfoot');
+  mb.innerHTML=`<div class="sscrn"><div class="si">${curWk===30?'🏆':'⚡'}</div><div class="stitle">${curWk===10?'SECURITY+ UNLOCKED':curWk===21?'PHASE 2 UNLOCKED':curWk===30?'MISSION COMPLETE':'WEEK UNLOCKED'}</div><div class="ssub">${curWk===30?'You made it. Every week. Every challenge. Done.':'Week '+(curWk+1<31?curWk+1+' is now unlocked.':'30 complete — mission done.')}</div><div class="xpd">+${xp} XP<small>Total: ${ST.xp} XP earned</small></div><button class="btn bg" onclick="closeM()">CONTINUE →</button></div>`;
+  mf.innerHTML='';
+  // re-render affected weeks
+  let el=document.getElementById('wk'+curWk);
+  if(el){let wkd=CUR.find(x=>x.w===curWk);renderWeek(curWk,el);}
+  if(curWk<30){let nwk=document.getElementById('wk'+(curWk+1));if(nwk){let wd=CUR.find(x=>x.w===curWk+1);renderWeek(curWk+1,nwk);}}
+  updateHeader();
+  // auto-switch phase tab if needed
+  if(curWk===10)showPh(2);
+  if(curWk===21)showPh(3);
+}
+
+function closeM(){document.getElementById('ov').classList.remove('open');}
+function closeOuter(e){if(e.target===document.getElementById('ov'))closeM();}
+document.addEventListener('keydown',e=>{if(e.key==='Escape')closeM();});
+
+// INIT — Firebase auth handles load/render
+// Check if user was previously logged in on this device
+(async function() {
+  const savedUser = localStorage.getItem('cipher_user');
+  if (savedUser) {
+    // Try to restore from Firestore
+    try {
+      const doc = await db.collection('cipher_users').doc(savedUser).get();
+      if (doc.exists) {
+        const data = doc.data();
+        const progress = data.progress || { done: {}, weeks: [], times: {}, xp: 0 };
+        launchApp(savedUser, progress);
+        return;
+      }
+    } catch(e) {
+      // Firestore unavailable — use localStorage cache
+      load();
+      launchApp(savedUser, ST);
+      return;
+    }
+  }
+  // No saved user — show login screen (already visible by default)
+})();
+</script>
+</body>
+</html>
