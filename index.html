@@ -574,7 +574,7 @@ async function doLogin() {
   btn.disabled = true;
   showLoginMsg('Connecting...', 'info');
   try {
-    const docRef = db.collection('cipher_users').doc(username);
+    const docRef = db.collection('users').doc(username);
     const doc = await docRef.get();
     if (!doc.exists) {
       await docRef.set({ pin, created: firebase.firestore.FieldValue.serverTimestamp(), progress: { done: {}, weeks: [], times: {}, xp: 0 } });
@@ -636,7 +636,7 @@ function scheduleSyncToFirestore() {
   if (syncTimeout) clearTimeout(syncTimeout);
   syncTimeout = setTimeout(async () => {
     try {
-      await db.collection('cipher_users').doc(currentUser).update({
+      await db.collection('users').doc(currentUser).update({
         progress: { done: ST.done, weeks: ST.weeks, times: ST.times, xp: ST.xp },
         lastSeen: firebase.firestore.FieldValue.serverTimestamp()
       });
@@ -1143,7 +1143,7 @@ document.addEventListener('keydown',e=>{if(e.key==='Escape')closeM();});
   if (savedUser) {
     // Try to restore from Firestore
     try {
-      const doc = await db.collection('cipher_users').doc(savedUser).get();
+      const doc = await db.collection('users').doc(savedUser).get();
       if (doc.exists) {
         const data = doc.data();
         const progress = data.progress || { done: {}, weeks: [], times: {}, xp: 0 };
