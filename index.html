@@ -334,23 +334,7 @@ footer{text-align:center;padding:2.5rem 1rem;font-family:'Share Tech Mono',monos
 </div>
 
 
-<!-- LOGIN SCREEN -->
-<div id="login-screen">
-  <div class="login-box">
-    <div class="login-logo">CI<em>PH</em>ER</div>
-    <div class="login-sub">// CYBERSECURITY CAREER OS</div>
-    <div id="login-form">
-      <label class="login-lbl">Username</label>
-      <input class="login-inp" id="l-user" type="text" placeholder="choose a username" maxlength="20" autocomplete="off" autocapitalize="none" spellcheck="false"/>
-      <label class="login-lbl">PIN (4 digits)</label>
-      <input class="login-inp pin" id="l-pin" type="password" placeholder="••••" maxlength="4" inputmode="numeric" pattern="[0-9]*"/>
-      <button class="login-btn" id="l-btn" onclick="doLogin()">ENTER CIPHER</button>
-      <div class="login-err" id="l-err"></div>
-      <div class="login-toggle">First time? <a onclick="toggleMode()">Create your profile</a></div>
-    </div>
-    <div class="login-loading" id="l-loading">Connecting to database...</div>
-  </div>
-</div>
+
 
 <div class="hdr">
   <div class="hdr-inner">
@@ -360,7 +344,7 @@ footer{text-align:center;padding:2.5rem 1rem;font-family:'Share Tech Mono',monos
       <div class="stat"><span class="stat-lbl">Phase</span><span class="stat-val" id="sp">1</span></div>
       <div class="stat"><span class="stat-lbl">XP</span><span class="stat-val" id="sxp">0</span></div>
       <div class="user-pill" id="userPill" style="display:none"><span id="userPillName"></span><span class="sync-dot" id="syncDot" title="Sync status"></span><button onclick="doLogout()" title="Sign out">⏻</button></div>
-      <span class="sync-dot" id="sync-dot" title="Sync status"></span><span class="user-badge" id="user-badge" onclick="doLogout()" title="Click to log out"></span><button class="brst" onclick="confirmReset()">RESET</button>
+      <button class="brst" onclick="confirmReset()">RESET</button>
     </div>
   </div>
   <div class="pbar-wrap"><div class="pbar" id="gbar" style="width:0%"></div></div>
@@ -397,148 +381,6 @@ footer{text-align:center;padding:2.5rem 1rem;font-family:'Share Tech Mono',monos
     <div class="mfoot" id="mfoot"></div>
   </div>
 </div>
-<script>
-// ─── FIREBASE INIT ────────────────────────────────────────────────────────────
-const firebaseConfig = {
-  apiKey: "AIzaSyAGzA3ERmn-FfAUDR0eN_Ler91AQzRi_8Q",
-  authDomain: "cipher-93dc4.firebaseapp.com",
-  projectId: "cipher-93dc4",
-  storageBucket: "cipher-93dc4.firebasestorage.app",
-  messagingSenderId: "1037218121444",
-  appId: "1:1037218121444:web:7e1193ed6789ea600c4ef1",
-  measurementId: "G-BNN7ERE6H0"
-};
-firebase.initializeApp(firebaseConfig);
-const db = firebase.firestore();
-
-// ─── AUTH STATE ───────────────────────────────────────────────────────────────
-let currentUser = null;
-let isCreating = false;
-let syncTimeout = null;
-
-function toggleMode() {
-  isCreating = !isCreating;
-  const btn = document.getElementById('l-btn');
-  const tog = document.querySelector('.login-toggle');
-  const lbl = document.querySelector('#login-form .login-lbl');
-  btn.textContent = isCreating ? 'CREATE PROFILE' : 'ENTER CIPHER';
-  tog.innerHTML = isCreating
-    ? 'Already have a profile? <a onclick="toggleMode()">Sign in</a>'
-    : 'First time? <a onclick="toggleMode()">Create your profile</a>';
-  document.getElementById('l-err').textContent = '';
-}
-
-async function doLogin() {
-  const username = (document.getElementById('l-user').value || '').trim().toLowerCase().replace(/[^a-z0-9_]/g,'');
-  const pin = (document.getElementById('l-pin').value || '').trim();
-  const err = document.getElementById('l-err');
-  const btn = document.getElementById('l-btn');
-
-  if (!username || username.length < 2) { err.textContent = 'Username must be at least 2 characters.'; return; }
-  if (!/^[0-9]{4}$/.test(pin)) { err.textContent = 'PIN must be exactly 4 digits.'; return; }
-
-  btn.disabled = true;
-  btn.textContent = isCreating ? 'Creating...' : 'Signing in...';
-  err.textContent = '';
-
-  try {
-    const ref = db.collection('users').doc(username);
-    const snap = await ref.get();
-
-    if (isCreating) {
-      if (snap.exists) { err.textContent = 'That username is taken. Choose another.'; btn.disabled=false; btn.textContent='CREATE PROFILE'; return; }
-      const initState = { pin, done:{}, weeks:[], times:{1:Date.now()}, xp:0, created:Date.now() };
-      await ref.set(initState);
-      currentUser = username;
-      ST = { done:{}, weeks:[], times:{1:Date.now()}, xp:0 };
-    } else {
-      if (!snap.exists) { err.textContent = 'Profile not found. Check username or create one.'; btn.disabled=false; btn.textContent='ENTER CIPHER'; return; }
-      const data = snap.data();
-      if (data.pin !== pin) { err.textContent = 'Incorrect PIN.'; btn.disabled=false; btn.textContent='ENTER CIPHER'; return; }
-      currentUser = username;
-      // Load saved state
-      ST = {
-        done: data.done || {},
-        weeks: data.weeks || [],
-        times: data.times || {1: Date.now()},
-        xp: data.xp || 0
-      };
-    }
-
-    // Convert numeric keys if needed (Firestore stores object keys as strings)
-    const doneFixed = {};
-    Object.keys(ST.done).forEach(k => { doneFixed[parseInt(k)] = ST.done[k]; });
-    ST.done = doneFixed;
-    const timesFixed = {};
-    Object.keys(ST.times).forEach(k => { timesFixed[parseInt(k)] = ST.times[k]; });
-    ST.times = timesFixed;
-    ST.weeks = ST.weeks.map(w => parseInt(w));
-
-    // Hide login, show app
-    document.getElementById('login-screen').style.display = 'none';
-    document.getElementById('user-badge').textContent = username.toUpperCase();
-    setSyncStatus('ok');
-    renderAll();
-    updateHeader();
-
-  } catch(e) {
-    console.error(e);
-    err.textContent = 'Connection error. Check your internet and try again.';
-    btn.disabled = false;
-    btn.textContent = isCreating ? 'CREATE PROFILE' : 'ENTER CIPHER';
-  }
-}
-
-function doLogout() {
-  if (!confirm('Log out of ' + currentUser + '?')) return;
-  currentUser = null;
-  ST = {done:{}, weeks:[], times:{}, xp:0};
-  document.getElementById('login-screen').style.display = 'flex';
-  document.getElementById('l-user').value = '';
-  document.getElementById('l-pin').value = '';
-  document.getElementById('l-err').textContent = '';
-  document.getElementById('l-btn').disabled = false;
-  document.getElementById('l-btn').textContent = 'ENTER CIPHER';
-  document.getElementById('user-badge').textContent = '';
-}
-
-// ─── FIRESTORE SYNC ───────────────────────────────────────────────────────────
-function setSyncStatus(status) {
-  const dot = document.getElementById('sync-dot');
-  if (!dot) return;
-  dot.className = 'sync-dot' + (status === 'syncing' ? ' syncing' : status === 'err' ? ' err' : '');
-  dot.title = status === 'ok' ? 'Synced' : status === 'syncing' ? 'Saving...' : 'Sync error';
-}
-
-async function syncToCloud() {
-  if (!currentUser) return;
-  setSyncStatus('syncing');
-  try {
-    await db.collection('users').doc(currentUser).update({
-      done: ST.done,
-      weeks: ST.weeks,
-      times: ST.times,
-      xp: ST.xp || 0,
-      lastSeen: Date.now()
-    });
-    setSyncStatus('ok');
-  } catch(e) {
-    console.error('Sync error:', e);
-    setSyncStatus('err');
-  }
-}
-
-function scheduleSyncToCloud() {
-  if (syncTimeout) clearTimeout(syncTimeout);
-  syncTimeout = setTimeout(syncToCloud, 1200); // debounce 1.2s
-}
-
-// Enter key on login inputs
-document.addEventListener('DOMContentLoaded', () => {
-  document.getElementById('l-pin').addEventListener('keydown', e => { if(e.key==='Enter') doLogin(); });
-  document.getElementById('l-user').addEventListener('keydown', e => { if(e.key==='Enter') document.getElementById('l-pin').focus(); });
-});
-</script>
 
 <script>
 const CUR=[
